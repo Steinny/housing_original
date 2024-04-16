@@ -1148,20 +1148,15 @@ ONBUTTON=2965,3140 // sign dispid
 
 ONBUTTON=12967,12978 //sign hanger
 	ref1 = <tag0.sign> //sign
-	// if <COMP>
-		// for 0 <eval(<COMP> - 1)>
-			// if strmatch("i_signpost*","<COMP.<local._for>.baseid>")
-				// ref2 = <COMP.<local._for>.uid>
-			// endif
-		// endfor
-	// endif
+	if <COMPS>
+		for 0 <eval(<COMPS> - 1)>
+			if strmatch("i_signpost*","<COMP.<local._for>.baseid>")
+				ref2 = <COMP.<local._for>.uid>
+			endif
+		endfor
+	endif
 	
-	ref2 = <comp.0>
-	// for 0 <eval(<src.houses> - 1)>
-		// if (<src.house.<dlocal._for>.comp.2> == <ref1>)
-			// ref2 = <src.house.<dlocal._for>.comp.0>
-		// endif
-	// endfor
+	// ref2 = <comp.0>
 	if <ref2.isvalid> && strmatch("i_signpost*","<ref2.baseid>")
 		ref2.dispid = <hval(<argn>-10000)>
 		ref2.update

@@ -129,15 +129,15 @@ On=@DClick
 		endif
 	endif
 	
-	if !<link.tag0.sign> //&& <link.COMP>
-		if (<link.COMP.1.baseid> == i_sign_brass)
-			link.tag0.sign = <link.COMP.1.uid>
-		endif
-		// for 0 <link.COMP>
-			// if (<link.COMP.<local._for>.baseid> == i_sign_brass)
-				// link.tag0.sign = <link.COMP.<local._for>.uid>
-			// endif
-		// endfor
+	if !<link.tag0.sign> && <link.COMPS>
+		// if (<link.COMP.1.baseid> == i_sign_brass)
+			// link.tag0.sign = <link.COMP.1.uid>
+		// endif
+		for 0 <link.COMPS>
+			if (<link.COMP.<local._for>.baseid> == i_sign_brass)
+				link.tag0.sign = <link.COMP.<local._for>.uid>
+			endif
+		endfor
 	endif
 	
 	if (<link.isowner <src>>) || (<link.GetCoownerPos <src>> >= 0) || (<link.GetFriendPos <src>> >= 0) || (<src.isgm>)
