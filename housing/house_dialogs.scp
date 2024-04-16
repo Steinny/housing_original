@@ -988,7 +988,7 @@ ONBUTTON=0,88
 			ref1.timer = 60*60*24*<eval(<argtxt[1]>)>
 			doswitch <src.f_LangShowNum>
 				src.sysmessage @,,1 You have scheduled this house to be demolished in <dtag0.demolition> days.
-				src.sysmessage @,,1 Вы запланировали снос этого дома через <dtag0.снос> дней.
+				src.sysmessage @,,1 Вы запланировали снос этого дома через <dtag0.demolition> дней.
 			enddo
 			resendtooltip
 			sdialog d_house_menu
@@ -1148,13 +1148,25 @@ ONBUTTON=2965,3140 // sign dispid
 
 ONBUTTON=12967,12978 //sign hanger
 	ref1 = <tag0.sign> //sign
-	for 0 <eval(<src.houses> - 1)>
-		if (<src.house.<dlocal._for>.comp.2> == <ref1>)
-			ref1 = <src.house.<dlocal._for>.comp.0>
-		endif
-	endfor
-	ref1.dispid = <hval(<argn>-10000)>
-	ref1.update
+	// if <COMP>
+		// for 0 <eval(<COMP> - 1)>
+			// if strmatch("i_signpost*","<COMP.<local._for>.baseid>")
+				// ref2 = <COMP.<local._for>.uid>
+			// endif
+		// endfor
+	// endif
+	
+	ref2 = <comp.0>
+	// for 0 <eval(<src.houses> - 1)>
+		// if (<src.house.<dlocal._for>.comp.2> == <ref1>)
+			// ref2 = <src.house.<dlocal._for>.comp.0>
+		// endif
+	// endfor
+	if <ref2.isvalid> && strmatch("i_signpost*","<ref2.baseid>")
+		ref2.dispid = <hval(<argn>-10000)>
+		ref2.update
+	endif
+	sdialog d_house_menu 12
 
 ONBUTTON=5000,9000 // sign coloring
 	if <def.hs_allow_sign_color>
@@ -1669,13 +1681,13 @@ ONBUTTON=1,1000
 	ref1 = <src.region.uid>
 	foritems 2
 		if (<baseid> == i_wall_darkwood) && (<link> == <ref1>)
-			ref1 = <uid>
-			ref1.dispid = <argn>
-			ref1.update
+			ref2 = <uid>
+			ref2.dispid = <argn>
+			ref2.update
 		endif
 	endfor
 	src.dialogclose d_house_menu
-	sdialog d_house_menu 4
+	link.sdialog d_house_menu 4
 	return 1
 
 [DIALOG d_house_secure]
