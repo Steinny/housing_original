@@ -15,7 +15,7 @@ src.p = <local.p>
 FORITEMS 7168
 	if (<type> == t_multi) || (<type> == t_multi_custom)
 		ref1 = <region.link>
-		ref1.timer = 60*60*24*<def.hs_can_decay>
+		ref1.timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay>
 	endif
 ENDFOR
 
@@ -305,7 +305,7 @@ ONBUTTON=1
 	endif
 	if <def.hs_can_decay> && !<src.isgm>
 		attr = 02|010
-		timer = 60*60*24*<def.hs_can_decay>
+		timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay>
 	else
 		attr = 010
 		timer = -1

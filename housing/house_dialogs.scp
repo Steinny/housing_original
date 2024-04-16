@@ -8,79 +8,109 @@ VERSION=X1
 [DIALOG d_house_menu]
 100,100
 page 0
-resizepic 0 0 5054 399 455
-gumppictiled 150 8 240 102 2624                //top box
-checkertrans 150 8 240 102                     //top box
-gumppictiled 7 116 383 283 2624                //middle box
-checkertrans 7 116 383 283                     //middle box
-gumppictiled 7 406 383 41 2624                 //bottom box
-checkertrans 7 406 383 41                      //bottom box
-gumppic 7 8 100                                //brass sign gump
+resizepic 0 0 <def0.dialog_hs_bg> 399 457
+
+resizepic 5 6 <def0.dialog_hs_frame> 387 109
+gumppictiled 9 10 379 101 <def0.dialog_hs_tile>                //top box
+checkertrans 9 10 379 101                     //top box
+gumppic 9 10 100                                //brass sign gump
+
+resizepic 5 116 <def0.dialog_hs_frame> 387 287
+gumppictiled 9 120 379 279 <def0.dialog_hs_tile>                //middle box
+checkertrans 9 120 379 279                     //middle box
+
+resizepic 5 406 <def0.dialog_hs_frame> 387 45
+gumppictiled 9 410 379 37 <def0.dialog_hs_tile>                 //bottom box
+checkertrans 9 410 379 37                      //bottom box
+
 
 ref1 = <tag0.sign> //sign
 ref2 = <uid> //house
 ref3 = <owner> //owner
 ref4 = <region.uid>
+
+if (<isowner <src>>) || (<src.isgm>)
+	local.listpriv |= 01
+endif
+if (<GetCoownerPos <src>> >= 0)
+	local.listpriv |= 02
+endif
+if (<GetFriendPos <src>> >= 0)
+	local.listpriv |= 04
+endif
+
 if <tag0.is_guild>
 	ref5 = <tag0.is_guild>
+	local.abbrev = None
 	if <ref5.isvalid>
-		local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?[None]:<ref5.abbrev>>
+		local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?None:<ref5.abbrev>>
 	endif
 endif
 
-dhtmlgump 25 38 106 60 0 0 <def.center><def.h3><def.bfont_size7><name>
+dhtmlgump 25 38 112 60 0 0 <def.center><def.h3><def.bfont_size7><name>
 
 if (<housetype> == <def.house_guild>)
 	dhtmlgump 25 22 106 20 0 0 <def.center><def.h3>[<local.abbrev>]
 endif
 
-dorigin 0 -9
+dorigin 155 -9
+
+if !(<src.isgm>) && !(<tag0.decay_exempt> == 1)
+	local.daysleft = <eval(((<ref1.timer>/60)/60)/24)>
+	if (<local.daysleft> < <eval(<def.hs_can_decay>-1)>)
+		button +200 +18 4036 4036 0 16 0
+		// dtext +209 +50 0423 Tax
+	endif
+endif
 
 local.menutxt1 = <def.HouseCtrl_<src.f_LangShow>_INFORMATION>
-dhtmlgump 190 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt1>
-button 150 8 4005 4007 0 1 0
+dhtmlgump +40 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt1>
+button - -4 4005 4007 0 1 0
 
 local.menutxt2 = <def.HouseCtrl_<src.f_LangShow>_SECURITY>
-dhtmlgump 190 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt2>
-button 150 28 4005 4007 0 2 0
+dhtmlgump +40 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt2>
+button - -4 4005 4007 0 2 0
 
 local.menutxt3 = <def.HouseCtrl_<src.f_LangShow>_STORAGE>
-dhtmlgump 190 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt3>
-button 150 48 4005 4007 0 3 0
+dhtmlgump +40 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt3>
+button - -4 4005 4007 0 3 0
 
 local.menutxt4 = <def.HouseCtrl_<src.f_LangShow>_CUSTOMIZE>
-dhtmlgump 190 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt4>
-button 150 68 4005 4007 0 4 0
+dhtmlgump +40 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt4>
+button - -4 4005 4007 0 4 0
 
 local.menutxt5 = <def.HouseCtrl_<src.f_LangShow>_OWNERSHIP>
-dhtmlgump 190 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt5>
-button 150 88 4005 4007 0 5 0
+dhtmlgump +40 *20 120 20 0 0 <def.bfont_hs_text1><local.menutxt5>
+button - -4 4005 4007 0 5 0
 
-dorigin 7 405
+
+
+dorigin 5 407
 if (<isowner <src>>) || (<GetCoownerPos <src>> >= 0) || (<GetFriendPos <src>> >= 0) || (<src.isgm>)
-	dhtmlgump 44 +3 150 20 0 0 <def.bfont_hs_text1><QVAL (<housetype>==<def.house_private>)?<def.HouseCtrl_<src.f_LangShow>_GrantAccess>:<def.HouseCtrl_<src.f_LangShow>_Banish>>
+	dhtmlgump +37 +3 150 20 0 0 <def.bfont_hs_text1><QVAL (<housetype>==<def.house_private>)?<def.HouseCtrl_<src.f_LangShow>_GrantAccess>:<def.HouseCtrl_<src.f_LangShow>_Banish>>
 	button - - 4005 4007 1 0 <QVAL (<housetype>==<def.house_private>)? 14:15>
 	
-	dhtmlgump 44 +23 150 20 0 0 <def.bfont_hs_text1><QVAL (<housetype>==<def.house_private>)?<def.HouseCtrl_<src.f_LangShow>_Revoke>:<def.HouseCtrl_<src.f_LangShow>_LiftBan>>
-	button 7 +20 4005 4007 1 0 <QVAL (<housetype>==<def.house_private>)? 12:13>
+	dhtmlgump +37 +24 150 20 0 0 <def.bfont_hs_text1><QVAL (<housetype>==<def.house_private>)?<def.HouseCtrl_<src.f_LangShow>_Revoke>:<def.HouseCtrl_<src.f_LangShow>_LiftBan>>
+	button - +21 4005 4007 1 0 <QVAL (<housetype>==<def.house_private>)? 12:13>
 else
-	dhtmlgump 44 +3 150 20 0 0 <def.bfont_hs_gray><QVAL (<housetype>==<def.house_private>)?<def.HouseCtrl_<src.f_LangShow>_GrantAccess>:<def.HouseCtrl_<src.f_LangShow>_Banish>>
-	dhtmlgump 44 +23 150 20 0 0 <def.bfont_hs_gray><QVAL (<housetype>==<def.house_private>)?<def.HouseCtrl_<src.f_LangShow>_Revoke>:<def.HouseCtrl_<src.f_LangShow>_LiftBan>>
+	dhtmlgump +37 +3 150 20 0 0 <def.bfont_hs_gray><QVAL (<housetype>==<def.house_private>)?<def.HouseCtrl_<src.f_LangShow>_GrantAccess>:<def.HouseCtrl_<src.f_LangShow>_Banish>>
+	dhtmlgump +37 +23 150 20 0 0 <def.bfont_hs_gray><QVAL (<housetype>==<def.house_private>)?<def.HouseCtrl_<src.f_LangShow>_Revoke>:<def.HouseCtrl_<src.f_LangShow>_LiftBan>>
 endif
 doswitch <src.f_LangShowNum>
 	begin
-		dhtmlgump 277 +23 100 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Eject>
-		button 360 +20 4005 4007 1 0 29
+		dhtmlgump +274 +24 100 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Eject>
+		button +357 +21 4005 4007 1 0 29
 	end
 	begin
-		dhtmlgump 280 +23 100 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Eject>
-		button 360 +20 4005 4007 1 0 29
+		dhtmlgump +277 +24 100 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Eject>
+		button +357 +21 4005 4007 1 0 29
 	end
 enddo
 
+
 page 1
-dhtmlgump 190 11 120 20 0 0 <def.bfont_hs_title><local.menutxt1> //INFORMATION
-button 150 8 4006 4006 0 1 0
+dhtmlgump 195 11 120 20 0 0 <def.bfont_hs_title><local.menutxt1> //INFORMATION
+button 155 8 4006 4006 0 1 0
 
 dorigin 20 110
 
@@ -90,8 +120,9 @@ dhtmlgump 120 - 120 20 0 0 <def.bfont_hs_text1><owner.name>
 if (<housetype> == <def.house_guild>)
 	if <tag0.is_guild>
 		ref5 = <tag0.is_guild>
+		local.abbrev = None
 		if <ref5.isvalid>
-			local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?[None]:<ref5.abbrev>>
+			local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?None:<ref5.abbrev>>
 		endif
 	endif
 	dhtmlgump 20 *20 370 40 0 0 <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_Headquarter><def.br><qval <src.f_LangShowNum>?<def.HouseCtrl_<src.f_LangShow>_Guild> <def.bfont_hs_text1>[<local.abbrev>]:<def.bfont_hs_text1>[<local.abbrev>] <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_Guild>><def.bfont_hs_title>.
@@ -156,7 +187,7 @@ if <def.hs_can_decay>
 				end
 				begin
 					dhtmlgump 20 *30 360 40 0 0 <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_TaxCover><def.br><def.bfont_hs_text3><local.decaymsg>
-					dhtmlgump 20 *40 360 40 0 0 <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_TaxIs> <def.bfont_hs_text3><dlocal.maint><def.bfont_hs_title> gp<def.br>на <def.bfont_hs_text3><ddef.hs_can_decay><def.bfont_hs_title> дней.
+					dhtmlgump 20 *40 360 40 0 0 <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_TaxIs> <def.bfont_hs_text3><dlocal.maint><def.bfont_hs_title> gp на <def.bfont_hs_text3><ddef.hs_can_decay><def.bfont_hs_title> дней.
 				end
 			enddo
 		endif
@@ -166,7 +197,7 @@ else
 endif
 
 // dorigin 20 280
-dtext - *40 0
+dtext - *40 0 //blank
 if !<ISEMPTY <tag.lasttransfer>>
 	call f_return_todate <tag0.lasttransfer>
 	dhtmlgump 20 *20 100 20 0 0 <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_LastTraded>
@@ -180,112 +211,86 @@ if !<ISEMPTY <tag.buildon>>
 endif
 
 dhtmlgump 20 *20 100 20 0 0 <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_Value>
-dhtmlgump 120 - 120 20 0 0 <def.bfont_hs_text3><dlocal.value> gp
+dhtmlgump 120 - 120 20 0 0 <def.bfont_hs_text3><f_math_cat <dlocal.value>> gp
 
 // dhtmlgump 20 *20 220 20 0 0 <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_VisitCnt>
 // dhtmlgump 120 - 120 20 0 0 <def.bfont_hs_text3><ref1.dmore2>
 
+
 page 2
-button 150 28 4006 4006 0 2 0
-dhtmlgump 190 31 120 20 0 0 <def.bfont_hs_title><local.menutxt2> //SECURITY
-if (<isowner <src>>) || (<src.isgm>)
-	dhtmlgump 44 143 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ViewCoOwn>
-	button 7 140 4005 4007 1 0 9
+dhtmlgump 195 31 120 20 0 0 <def.bfont_hs_title><local.menutxt2> //SECURITY
+button 155 28 4006 4006 0 2 0
 
-	dhtmlgump 44 163 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_AddCoOwn>
-	button 7 160 4005 4007 1 0 17
+dorigin 40 123
 
-	dhtmlgump 44 183 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_RemCoOwn>
-	button 7 180 4005 4007 1 0 16
-
-	dhtmlgump 44 203 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ClrCoOwn>
-	button 7 200 4005 4007 1 0 18
-else
-	if (<GetCoownerPos <src>> >= 0) || (<GetFriendPos <src>> >= 0)
-		dhtmlgump 44 143 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ViewCoOwn>
-		button 7 140 4005 4007 1 0 9 //View House Co-Owners
-		button 7 240 4005 4007 1 0 11 //View House Friends
-	endif
-	dhtmlgump 44 143 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_ViewCoOwn>
-	dhtmlgump 44 163 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_AddCoOwn>
-	dhtmlgump 44 183 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_RemCoOwn>
-	dhtmlgump 44 203 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_ClrCoOwn>
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_ChangeTo> <QVAL (<housetype> == <def.house_private>)?"<def.HouseCtrl_<src.f_LangShow>_Public>":"<def.HouseCtrl_<src.f_LangShow>_Private>">
+if (<local.listpriv> & 01)
+	button -33 -3 4023 4025 1 0 23 //private-public
 endif
-if (<isowner <src>>) || (<GetCoownerPos <src>> >= 0) || (<src.isgm>)
-	dhtmlgump 44 243 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ViewFriend>
-	button 7 240 4005 4007 1 0 11
-	
-	dhtmlgump 44 263 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_AddFriend>
-	button 7 260 4005 4007 1 0 19
-	
-	dhtmlgump 44 283 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_RemFriend>
-	button 7 280 4005 4007 1 0 25
-	
-	dhtmlgump 44 303 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ClrFriend>
-	button 7 300 4005 4007 1 0 20
-else
-	dhtmlgump 44 263 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_AddFriend>
-	dhtmlgump 44 243 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_ViewFriend>
-	dhtmlgump 44 283 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_RemFriend>
-	dhtmlgump 44 303 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_ClrFriend>
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><QVAL (<housetype>==<def.house_guild>)? <def.HouseCtrl_<src.f_LangShow>_RemGldhouse>:<def.HouseCtrl_<src.f_LangShow>_SetGldhouse>>
+if (<local.listpriv> & 01)
+	button -33 -3 4014 4016 1 0 50 //guild declaration
 endif
+
+dhtmlgump +4 *20 320 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_RecodeDoor>
+if (<local.listpriv> & 01)
+	button -33 -3 4014 4016 1 0 26 //recode doors
+endif
+
+dtext 0 *20 0 //blank
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv>)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_ViewCoOwn> (<Coowners> / <def0.hs_max_Coowner>)
+if (<local.listpriv>)
+	button -33 -3 4029 4031 1 0 9 //View Coowners List
+endif
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_AddCoOwn>
+if (<local.listpriv> & 01)
+	button -33 -3 4005 4007 1 0 17 //Add Cooowner
+endif
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv>)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_ViewFriend> (<Friends> / <def0.hs_max_Friend>)
+if (<local.listpriv>)
+	button -33 -3 4029 4031 1 0 11 //View Friends List
+endif
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv> & (01|02))?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_AddFriend>
+if (<local.listpriv> & (01|02))
+	button -33 -3 4005 4007 1 0 19 //Add Friends
+endif
+
+dtext 0 *20 0 //blank
+
 if (<housetype> == <def.house_private>)
-	button 7 340 4005 4007 1 0 12
-	dhtmlgump 44 343 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ViewAccess>
-	if (<isowner <src>>) || (<GetCoownerPos <src>> >= 0) || (<GetFriendPos <src>> >= 0) || (<src.isgm>)
-		button 7 360 4005 4007 1 0 21
-		dhtmlgump 44 363 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ClrAccess>
-	else
-		dhtmlgump 44 363 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_ClrAccess>
+	dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv>)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_ViewAccess> (<Accesses> / <def0.hs_max_Access>)
+	if (<local.listpriv>)
+		button -33 -3 4029 4031 1 0 12
 	endif
 else
-	button 7 340 4005 4007 1 0 13
-	dhtmlgump 44 343 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ViewBanList>
-	if (<isowner <src>>) || (<GetCoownerPos <src>> >= 0) || (<GetFriendPos <src>> >= 0) || (<src.isgm>)
-		button 7 360 4005 4007 1 0 22
-		dhtmlgump 44 363 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ClrBanList>
-	else
-		dhtmlgump 44 363 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_ClrBanList>
+	dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv>)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_ViewBanList> (<Bans> / <def0.hs_max_Ban>)
+	if (<local.listpriv>)
+		button -33 -3 4029 4031 1 0 13
 	endif
 endif
-if (<isowner <src>>) || (<src.isgm>)
-	dhtmlgump 237 143 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_ChangeTo> <QVAL (<housetype> == <def.house_private>)?"<def.HouseCtrl_<src.f_LangShow>_Public>":"<def.HouseCtrl_<src.f_LangShow>_Private>">
-	// dhtmlgump 237 143 180 20 0 0 <def.bfont_hs_title><def.HouseCtrl_<src.f_LangShow>_ChangeTo> <QVAL !(<housetype> == <def.house_private>)?"<def.HouseCtrl_<src.f_LangShow>_Public>":"<def.HouseCtrl_<src.f_LangShow>_Private>">
-	button 200 140 4005 4007 1 0 23 //private-public
-	
-	dhtmlgump 237 183 180 20 0 0 <def.bfont_hs_text1><QVAL (<housetype>==<def.house_guild>)? <def.HouseCtrl_<src.f_LangShow>_RemGldhouse>:<def.HouseCtrl_<src.f_LangShow>_SetGldhouse>>
-	button 200 180 4005 4007 1 0 50 //guild declaration
-	
-	dhtmlgump 237 203 180 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_RecodeDoor>
-	dhtmlgump 237 223 120 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_OrTelepads>
-	button 200 200 4005 4007 1 0 26 //recode doors
-else
-	dhtmlgump 237 143 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_ChangeTo> <QVAL (<housetype> == <def.house_private>)?"<def.HouseCtrl_<src.f_LangShow>_Public>":"<def.HouseCtrl_<src.f_LangShow>_Private>">
-	dhtmlgump 237 183 180 20 0 0 <def.bfont_hs_gray><QVAL (<housetype>==<def.house_guild>)?<def.HouseCtrl_<src.f_LangShow>_RemGldhouse>:<def.HouseCtrl_<src.f_LangShow>_SetGldhouse>>
-	dhtmlgump 237 203 180 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_RecodeDoor>
-	dhtmlgump 237 223 120 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_OrTelepads>
-endif
+
 
 page 3
-button 150 48 4006 4006 0 3 0
-dhtmlgump 190 51 120 20 0 0 <def.bfont_hs_title><local.menutxt3> //STORAGE
+dhtmlgump 195 51 120 20 0 0 <def.bfont_hs_title><local.menutxt3> //STORAGE
+button 155 48 4006 4006 0 3 0
+
 dhtmlgump 18 125 360 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_StorageSumm>
 
 local.storIncr = <def.HouseCtrl_<src.f_LangShow>_StorageIncr>
 local.storBuy = <def.HouseCtrl_<src.f_LangShow>_StorageBuy>
 if <def.hs_buy_storage> && <def.hs_hs_secure_locks_limit>
-	if (<isowner <src>>) || (<src.isgm>)
-		dhtmlgump 11 160 250 20 0 0 <def.bfont_hs_text3><local.storIncr>
-		dhtmlgump 290 160 120 20 0 0 <def.bfont_hs_text1><IncreasedStorage>%
-		if (<IncreasedStorage> < 100)
-			dhtmlgump 44 380 250 20 0 0 <def.bfont_hs_text1><local.storBuy>
-			button 7 377 4005 4007 0 11 0
-		endif
-	else
-		dhtmlgump 11 160 250 20 0 0 <def.bfont_hs_gray><local.storIncr>
-		dhtmlgump 290 160 120 20 0 0 <def.bfont_hs_gray><IncreasedStorage>%
-		if (<IncreasedStorage> < 100)
-			dhtmlgump 44 380 250 20 0 0 <def.bfont_hs_gray><local.storBuy>
+	dhtmlgump 11 160 250 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text3>:<def.bfont_hs_gray>><local.storIncr>
+	dhtmlgump 290 160 120 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text2>:<def.bfont_hs_gray>><IncreasedStorage>%
+
+	if (<IncreasedStorage> < 100)
+		dhtmlgump 43 383 250 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><local.storBuy>
+		if (<local.listpriv> & 01)
+			button 6 380 4029 4031 0 11 0
 		endif
 	endif
 endif
@@ -294,185 +299,160 @@ local.unlim = <def.HouseCtrl_<src.f_LangShow>_Unlimited>
 // dorigin 11 200
 dorigin 11 160
 
-dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_StorageMax>
-dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<maxstorage>>
+// dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_StorageMax>
+// dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<maxstorage>>
 
-if (<type> == t_multi_custom)
-	dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_UseMoveCont>
-	dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<qval (<MovingCrate>)?<uid.<MovingCrate>.count>:0>> //my line
-else
-	dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_UseMoveCont>
-	dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_gray><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<qval (<MovingCrate>)?<uid.<MovingCrate>.count>:0>> //my line
-endif
+dhtmlgump 11 *30 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_StorageAvb>
+dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<eval(<maxstorage>-(<lockdowns>+<getSECUREDitems>))> / <maxstorage>>
 
-// dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_StorageMax> //my line
-// dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<eval(<maxstorage>-(<lockdowns>+<getSECUREDitems>))> / <maxstorage>> //my line
-
-dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_LockdownUse>
-dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<lockdowns>>
+// dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_LockdownUse>
+// dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<lockdowns>>
 
 dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_SecureUse>
-dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<getSECUREDitems>>
+dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<getSECUREDitems>>
 
-dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_StorageAvb>
-dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<eval(<maxstorage>-(<lockdowns>+<getSECUREDitems>))>>
+// dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_StorageAvb>
+// dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<eval(<maxstorage>-(<lockdowns>+<getSECUREDitems>))>>
 
-dhtmlgump 11 *30 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_LockdownMax>
-dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<maxlockdowns>>
+// dhtmlgump 11 *30 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_LockdownMax>
+// dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<maxlockdowns>>
 
-// dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_LockdownMax> //my line
-// dhtmlgump 290 - 150 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<eval(<maxlockdowns>-<lockdowns>)> / <maxlockdowns>> //my line
+// dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_LockdownAvb>
+// dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<eval(<maxlockdowns>-<lockdowns>)>>
 
 dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_LockdownAvb>
-dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<eval(<maxlockdowns>-<lockdowns>)>>
+dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<eval(<maxlockdowns>-<lockdowns>)> / <maxlockdowns>>
 
-// if (<type> == t_multi_custom) //my line
-	// dhtmlgump 11 *35 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_UseMoveCont> //my line
-	// dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<qval (<MovingCrate>)?<uid.<MovingCrate>.count>:0>> //my line
-// endif //my line
+if (<type> == t_multi_custom)
+	dhtmlgump 11 *40 250 20 0 0 <qval (<type> == t_multi_custom)?<def.bfont_hs_text3>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_UseMoveCont>
+	dhtmlgump 290 - 140 20 0 0 <qval (<type> == t_multi_custom)?<def.bfont_hs_text2>:<def.bfont_hs_gray>><qval (!<def.hs_hs_secure_locks_limit>)?<local.unlim>:<qval (<MovingCrate>)?<uid.<MovingCrate>.count>:0>> //my line
+else
+	dtext 0 *40 0 //blank
+endif
 
 dhtmlgump 11 *20 250 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_Vendors>
-dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text1><vendors>/<maxvendors>
+dhtmlgump 290 - 140 20 0 0 <def.bfont_hs_text2><vendors> / <maxvendors>
 
 
 page 4
-button 150 68 4006 4006 0 4 0
-dhtmlgump 190 71 120 20 0 0 <def.bfont_hs_title><local.menutxt4> //CUSTOMIZE
+dhtmlgump 195 71 120 20 0 0 <def.bfont_hs_title><local.menutxt4> //CUSTOMIZE
+button 155 68 4006 4006 0 4 0
 
 
-local.txt_ConvCustom = <def.HouseCtrl_<src.f_LangShow>_ConvCustomize>
-local.txt_Customize = <def.HouseCtrl_<src.f_LangShow>_CustomizeH>
-local.txt_reloc = <def.HouseCtrl_<src.f_LangShow>_RelMoveCrate>
-local.txt_signID = <def.HouseCtrl_<src.f_LangShow>_CngSignID>
-local.txt_signClr = <def.HouseCtrl_<src.f_LangShow>_CngSignCol>
-local.txt_signHng = <def.HouseCtrl_<src.f_LangShow>_CngSignHng>
-local.txt_signPst = <def.HouseCtrl_<src.f_LangShow>_CngSignPst>
-local.txt_Foundat = <def.HouseCtrl_<src.f_LangShow>_CngFoundat>
-local.txt_Rename = <def.HouseCtrl_<src.f_LangShow>_RenameHouse>
-
-if (<isowner <src>>) || (<src.isgm>)
-	if (<type> == t_multi_custom)
-		dhtmlgump 44 143 360 20 0 0 <def.bfont_hs_gray><local.txt_ConvCustom>
-		
-		dhtmlgump 44 163 270 20 0 0 <def.bfont_hs_text1><local.txt_Customize>
-		button 7 160 4005 4007 1 0 35
-	else
-		if (<baseid>==m_small_stone_keep) || (<baseid>==m_castle) || (<baseid>==m_two_story_wood_and_plaster_house) || (<baseid>=m_two_story_stone_and_plaster_house)
-			dhtmlgump 44 143 360 20 0 0 <def.bfont_hs_gray><local.txt_ConvCustom>
-			dhtmlgump 44 163 270 20 0 0 <def.bfont_hs_gray><local.txt_Customize>
-		else
-			if <def.hs_allow_custom>
-				dhtmlgump 44 143 360 20 0 0 <def.bfont_hs_text1><local.txt_ConvCustom>
-				button 7 140 4005 4007 1 0 53
-			else
-				dhtmlgump 44 143 360 20 0 0 <def.bfont_hs_gray><local.txt_ConvCustom>
-			endif
-			dhtmlgump 44 163 270 20 0 0 <def.bfont_hs_gray><local.txt_Customize>
-		endif
-	endif
-
-	if <MovingCrate>
-		ref11 = <MovingCrate>
-		if (<ref11.count>) && (<isowner <src>>) || (<src.isgm>)
-			dhtmlgump 44 183 270 20 0 0 <def.bfont_hs_text1><local.txt_reloc>
-			button 7 180 4005 4007 1 0 57
-		else
-			dhtmlgump 44 183 270 20 0 0 <def.bfont_hs_gray><local.txt_reloc>
-		endif
-	else
-		dhtmlgump 44 183 270 20 0 0 <def.bfont_hs_gray><local.txt_reloc>
-	endif
-
-	dhtmlgump 44 223 270 20 0 0 <def.bfont_hs_text1><local.txt_signID>
-	button 7 220 4005 4007 0 14 0
-	
-	if <def.hs_allow_sign_color>
-		button 7 240 4005 4007 0 15 0
-		dhtmlgump 44 243 270 20 0 0 <def.bfont_hs_text1><local.txt_signClr>
-	else
-		dhtmlgump 44 243 270 20 0 0 <def.bfont_hs_gray><local.txt_signClr>
-	endif
-
-	if (<type> == t_multi_custom) && (<def0.hs_allow_sign_hanger>)
-		button 7 260 4005 4007 0 12 0
-		local.change_signhanger = 1
-	endif
-	if (<type> == t_multi_custom) && (<def0.hs_allow_sign_post>)
-		button 7 280 4005 4007 1 0 36
-		local.change_signpost = 1
-	endif
-	if (<local.change_signhanger>) && (<def0.hs_allow_sign_hanger>)
-		dhtmlgump 44 263 270 20 0 0 <QVAL (<local.change_signhanger>)?<def.bfont_hs_text1><local.txt_signHng>:<def.bfont_hs_gray><local.txt_signHng>>
-	else
-		dhtmlgump 44 263 270 20 0 0 <def.bfont_hs_gray><local.txt_signHng>
-	endif
-	if (<local.change_signpost>) && (<def0.hs_allow_sign_post>)
-		dhtmlgump 44 283 270 20 0 0 <QVAL (<local.change_signpost>)?<def.bfont_hs_text1><local.txt_signPst>:<def.bfont_hs_gray><local.txt_signPst>>
-	else
-		dhtmlgump 44 283 270 20 0 0 <def.bfont_hs_gray><local.txt_signPst>
-	endif
-else
-	dhtmlgump 44 143 300 20 0 0 <def.bfont_hs_gray><local.txt_ConvCustom>
-	dhtmlgump 44 163 270 20 0 0 <def.bfont_hs_gray><local.txt_Customize>
-	dhtmlgump 44 183 270 20 0 0 <def.bfont_hs_gray><local.txt_reloc>
-	dhtmlgump 44 223 270 20 0 0 <def.bfont_hs_gray><local.txt_signID>
-	dhtmlgump 44 243 270 20 0 0 <def.bfont_hs_gray><local.txt_signClr>
-	dhtmlgump 44 263 270 20 0 0 <def.bfont_hs_gray><local.txt_signHng>
-	dhtmlgump 44 283 270 20 0 0 <def.bfont_hs_gray><local.txt_signPst>
-	dhtmlgump 44 313 270 20 0 0 <def.bfont_hs_gray><local.txt_Foundat>
-	dhtmlgump 44 363 270 20 0 0 <def.bfont_hs_gray><local.txt_Rename>
+local.allowcustom = 1
+if !<def.hs_allow_custom>
+	local.allowcustom = 0
+elseif (<type> == t_multi_custom)
+	local.allowcustom = 0
+elseif (<baseid> == m_small_stone_keep) || (<baseid> == m_castle) || (<baseid> == m_two_story_wood_and_plaster_house) || (<baseid> == m_two_story_stone_and_plaster_house)
+	local.allowcustom = 0
 endif
 
-if (<def0.hs_allow_foundation>)
-	button 7 310 4005 4007 1 0 58
-	dhtmlgump 44 313 270 20 0 0 <def.bfont_hs_gray><local.txt_Foundat>
+dorigin 40 123
+
+dhtmlgump +4 *20 360 20 0 0 <qval <eval((<local.listpriv> & 01) && (<local.allowcustom> == 1))>?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_ConvCustomize>
+if (<local.listpriv> & 01) && (<local.allowcustom> == 1)
+	button -33 -3 4023 4025 1 0 53
 endif
 
-if (<isowner <src>>) || (<GetCoownerPos <src>> >= 0) || (<src.isgm>)
-	button 7 360 4005 4007 1 0 24
-	dhtmlgump 44 363 270 20 0 0 <def.bfont_hs_text1><local.txt_Rename>
-else
-	dhtmlgump 44 363 270 20 0 0 <def.bfont_hs_gray><local.txt_Rename>
+dhtmlgump +4 *20 270 20 0 0 <qval <eval((<local.listpriv> & 01) && (<type> == t_multi_custom))>?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_CustomizeH>
+if (<local.listpriv> & 01) && (<type> == t_multi_custom)
+	button -33 -3 4029 4031 1 0 35
 endif
+
+if <MovingCrate>
+	ref11 = <MovingCrate>
+	if !(<ref11.count>)
+		ref11 = 0
+	endif
+endif
+dhtmlgump +4 *20 270 20 0 0 <qval <eval((<local.listpriv> & 01) && (<ref11.isvalid>))>?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_RelMoveCrate>
+if (<ref11.isvalid>) && (<local.listpriv> & 01)
+	button -33 -3 4005 4007 1 0 57
+endif
+
+dhtmlgump +4 *40 270 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_CngSignID>
+if (<local.listpriv> & 01)
+	button -33 -3 4029 4031 0 14 0
+endif
+
+dhtmlgump +4 *20 270 20 0 0 <qval <eval((<local.listpriv> & 01) && (<def.hs_allow_sign_color>))>?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_CngSignCol>
+if (<def.hs_allow_sign_color>) && (<local.listpriv> & 01)
+	button -33 -3 4029 4031 0 15 0
+endif
+
+if (<type> == t_multi_custom) && (<def0.hs_allow_sign_hanger>) && (<local.listpriv> & 01)
+	local.change_signhanger = 1
+endif
+dhtmlgump +4 *20 270 20 0 0 <QVAL (<local.change_signhanger>)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_CngSignHng>
+if (<local.change_signhanger> & 01)
+	button -33 -3 4029 4031 0 12 0
+endif
+if (<type> == t_multi_custom) && (<def0.hs_allow_sign_post>) && (<local.listpriv> & 01)
+	local.change_signpost = 1
+endif
+dhtmlgump +4 *20 270 20 0 0 <QVAL (<local.change_signpost>)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_CngSignPst>
+if (<local.change_signpost>)
+	button -33 -3 4029 4031 1 0 36
+endif
+
+if (<def0.hs_allow_foundation>) //Not implemented at the moment!!!
+	dhtmlgump +4 *30 270 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_CngFoundat>
+	button -33 -3 4029 4031 1 0 58
+endif
+
+dhtmlgump +4 *60 270 20 0 0 <qval (<local.listpriv> & (01|02))?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_RenameHouse>
+if (<local.listpriv> & (01|02))
+	button -33 -3 4029 4031 1 0 24
+endif
+
 
 page 5
-button 150 88 4006 4006 0 5 0
-dhtmlgump 190 91 120 20 0 0 <def.bfont_hs_title><local.menutxt5> //OWNERSHIP
+dhtmlgump 195 91 120 20 0 0 <def.bfont_hs_title><local.menutxt5> //OWNERSHIP
+button 155 88 4006 4006 0 5 0
+
+dorigin 40 123
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_PayTax>
 if <def.hs_can_decay> && <def.hs_property_tax>
-	if (<isowner <src>>) || (<GetCoownerPos <src>> >= 0) || (<GetFriendPos <src>> >= 0) || (<src.isgm>)
-		button 7 140 4005 4007 0 16 0
-		dhtmlgump 44 143 270 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_PayTax>
+	if (<local.listpriv> & (01|02|03))
+		button -33 -3 4029 4031 0 16 0
 	endif
 endif
-if (<isowner <src>>) || (<src.isgm>)
-	button 7 160 4005 4007 1 0 27
-	dhtmlgump 44 163 270 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_TradeHouse>
-	if <def.house_sell>
-		dhtmlgump 44 183 270 20 0 0 <def.bfont_hs_text1><QVAL (<ref4.tag0.forsale>)? <def.HouseCtrl_<src.f_LangShow>_TakeOffSale>:<def.HouseCtrl_<src.f_LangShow>_PutForSale>>
-		button 7 180 4005 4007 0 10 0
-	endif
-	button 7 200 4005 4007 1 0 28
-	dhtmlgump 44 203 270 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_HouseRemoval>
-else
-	dhtmlgump 44 163 270 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_TradeHouse>
-	dhtmlgump 44 183 270 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_PutForSale>
-	dhtmlgump 44 183 270 20 0 0 <def.bfont_hs_gray><def.HouseCtrl_<src.f_LangShow>_HouseRemoval>
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_TradeHouse>
+if (<local.listpriv> & 01)
+	button -33 -3 4005 4007 1 0 27
 endif
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><QVAL (<ref4.tag0.forsale>)? <def.HouseCtrl_<src.f_LangShow>_TakeOffSale>:<def.HouseCtrl_<src.f_LangShow>_PutForSale>>
+if <def.house_sell> && (<local.listpriv> & 01)
+	button -33 -3 4029 4031 0 10 0
+endif
+
+dhtmlgump +4 *20 270 20 0 0 <qval (<local.listpriv> & 01)?<def.bfont_hs_text1>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_HouseRemoval>
+if (<local.listpriv> & 01)
+	button -33 -3 4029 4031 1 0 28
+endif
+
 if (<src.isgm>)
-	dhtmlgump 18 240 360 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_AdmOptions>
+	dorigin 40 220
+
+	dhtmlgump 18 *20 360 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_AdmOptions>
 	
-	dhtmlgump 44 273 320 20 0 0 <def.bfont_hs_text1><QVAL <eval <tag0.decay_exempt>==1>?<def.HouseCtrl_<src.f_LangShow>_SetDecay>:<def.HouseCtrl_<src.f_LangShow>_SetEternal>>
-	button 7 270 4005 4007 1 0 <QVAL <eval <tag0.decay_exempt>==1>? 88:87>
+	dhtmlgump +4 *33 320 20 0 0 <def.bfont_hs_text1><QVAL <eval <tag0.decay_exempt>==1>?<def.HouseCtrl_<src.f_LangShow>_SetDecay>:<def.HouseCtrl_<src.f_LangShow>_SetEternal>>
+	button -33 -3 4005 4007 1 0 <QVAL <eval <tag0.decay_exempt>==1>? 88:87>
 	
 	if !(<tag0.demolition>)
-		dhtmlgump 46 304 318 20 0 0 <def.bfont_hs_text3><def.center><def.HouseCtrl_<src.f_LangShow>_SchedDemol>
-		dhtmlgump 46 320 318 20 0 0 <def.bfont_hs_text3><def.center><def.HouseCtrl_<src.f_LangShow>_NumDayDemol>
-		gumppictiled 196 352 30 20 2624
-		dtextentrylimited 200 353 32 20 55 1 2 7
-		dhtmlgump 235 353 120 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_DemolitDays>
+		dhtmlgump -4 *31 328 20 0 0 <def.bfont_hs_text3><def.center><def.HouseCtrl_<src.f_LangShow>_SchedDemol>
+		dhtmlgump -4 +16 328 20 0 0 <def.bfont_hs_text3><def.center><def.HouseCtrl_<src.f_LangShow>_NumDayDemol>
+		
+		gumppictiled +126 +38 30 20 <def0.dialog_hs_tile>
+		dtextentrylimited +130 +37 32 20 55 1 2 7
+		dhtmlgump +165 +39 120 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_DemolitDays>
 	endif
-	dhtmlgump 44 353 270 20 0 0 <def.bfont_hs_text1><QVAL (<tag0.demolition>)? <def.HouseCtrl_<src.f_LangShow>_CancelDemol>:<def.HouseCtrl_<src.f_LangShow>_StartDemol>>
-	button 7 350 4023 4025 1 0 75
+	dhtmlgump +4 *75 270 20 0 0 <def.bfont_hs_text1><QVAL (<tag0.demolition>)? <def.HouseCtrl_<src.f_LangShow>_CancelDemol>:<def.HouseCtrl_<src.f_LangShow>_StartDemol>>
+	button -33 -3 4023 4025 1 0 75
 endif
 
 page 6
@@ -483,10 +463,10 @@ else
 endif
 
 page 7
-f_house_render_list Coowner
+f_house_render_list Coowner,1
 
 page 8
-f_house_render_list Friend
+f_house_render_list Friend,1
 
 page 10
 dhtmlgump 38 134 316 100 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_SellHouse>
@@ -508,8 +488,8 @@ button 72 360 4023 4025 1 0 30
 page 11
 dhtmlgump 18 130 360 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_IncreaseStor>
 
-dhtmlgump 38 158 320 100 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_IncrStorInf><def.bfonte>
-dhtmlgump 38 254 320 40 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_IncrStorInf2><def.bfonte>
+dhtmlgump 38 158 320 100 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_IncrStorInf>
+dhtmlgump 38 254 320 40 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_IncrStorInf2>
 
 local.IncAdd = <def.HouseCtrl_<src.f_LangShow>_IncrStorAdd>
 local.IncFor = <def.HouseCtrl_<src.f_LangShow>_IncrStorFor>
@@ -540,8 +520,10 @@ else
 endif
 
 page 12
-local.number <ref1.dispid>
-if (<eval(<fval <local.number>/2>*2)>==<local.number>)
+local.number = <ref1.dispid>
+dhtmlgump 88 125 220 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_SignHanger>
+
+if (<eval((<fval <local.number>/2>)*2)> == <local.number>)
 	button 30 180 4005 4007 1 0 12968
 	tilepic 70 180 2968
 	button 150 180 4005 4007 1 0 12970
@@ -575,7 +557,7 @@ call f_house_render_signs
 
 page 15
 //sign color //ref1 - sign
-dhtmlgump 88 125 220 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center>Sign Color
+dhtmlgump 88 125 220 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_SignColor>
 
 dhtmlgump 337 253 100 20 0 0 <def.bfont_hs_text1>Reset
 button 300 250 4017 4019 1 0 86
@@ -599,7 +581,11 @@ if !(strmatch(*Britannic Realtors*,<ref1.name>))
 		dhtmlgump 250 130 120 20 0 0 <def.bfont_hs_text3><def.bfont_size7><def.DIV_RIGHT><def.HouseCtrl_<src.f_LangShow>_Houses> <def.bfont_hs_text2><src.houses> <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_ToQTS>
 	endif
 endif
-if (!<src.isgm>)
+if (<src.isgm>)
+	dhtmlgump 18 240 360 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_StaffOver>
+	dhtmlgump 44 343 360 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_ResDecTmr> <def.bfont_hs_text2><ddef.hs_can_decay><def.bfont_hs_text3> <def.HouseCtrl_<src.f_LangShow>_DemolitDays>
+	button 7 340 4005 4007 1 0 85
+else
 	if (<tag0.decay_exempt> == 1)
 		dhtmlgump 20 180 360 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_PropExempt>
 		dhtmlgump 20 200 360 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_PropNoTax>
@@ -610,7 +596,7 @@ if (!<src.isgm>)
 		local.days = <eval(<ddef.hs_can_decay>-<dlocal.daysleft>)>
 		local.value = <eval((<value>+<tag0.boughtstorage>)+<tag0.construction>)>
 		if <def.hs_estate_tax>
-			if <src.houses> 
+			if <src.houses>
 				local.houses = <src.houses>
 				if (<local.houses> > <ddef.hs_estate_tax>)
 					dhtmlgump 18 210 360 20 0 0 <def.bfont_hs_red><def.center><def.HouseCtrl_<src.f_LangShow>_EstateTax> <def.bfont_hs_text2><eval(<local.houses>-<ddef.hs_estate_tax>)><def.bfont_hs_red> <def.HouseCtrl_<src.f_LangShow>_House-s>
@@ -663,24 +649,18 @@ if (!<src.isgm>)
 
 		if (<local.daysleft> < <eval(<def.hs_can_decay>-1)>)
 			if <def.hs_can_decay> && <def.hs_property_tax>
-				dhtmlgump 44 363 370 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_Pay> <def.bfont_hs_text2><dlocal.maintpay><def.bfont_hs_text3> gp <def.HouseCtrl_<src.f_LangShow>_ToAdd> <def.bfont_hs_text2><dlocal.days><def.bfont_hs_text3> <def.HouseCtrl_<src.f_LangShow>_DemolitDays>
-				button 7 360 4005 4007 1 0 85
+				doswitch <src.f_LangShowNum>
+					local.day_name = <def.HouseCtrl_<src.f_LangShow>_DemolitDays>
+					call f_days_name <dlocal.days> //local.day_name
+				enddo
+				dhtmlgump 44 363 370 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_Pay> <def.bfont_hs_text2><dlocal.maintpay><def.bfont_hs_text3> gp <def.HouseCtrl_<src.f_LangShow>_ToAdd> <def.bfont_hs_text2><dlocal.days><def.bfont_hs_text3> <local.day_name>
+				button 7 360 4023 4025 1 0 85
 			endif
 		else
 			dhtmlgump 24 363 350 20 0 0 <def.bfont_hs_text2><def.center><def.HouseCtrl_<src.f_LangShow>_NoPropTax>
 		endif
 	endif
-else
-	dhtmlgump 18 240 360 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_StaffOver>
-	dhtmlgump 44 343 360 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_ResDecTmr> <def.bfont_hs_text2><ddef.hs_can_decay><def.bfont_hs_text3> <def.HouseCtrl_<src.f_LangShow>_DemolitDays>
-	button 7 340 4005 4007 1 0 85
 endif
-
-page 17
-f_house_render_list Coowner,1
-
-page 18
-f_house_render_list Friend,1
 
 [DIALOG d_house_menu button]
 ONBUTTON=0,88
@@ -692,12 +672,18 @@ ONBUTTON=0,88
 	if (<argn> == 6)
 		src.ctag0.list = access
 		sdialog d_house_menu 6
-	elseif (<argn> == 9)
+	elseif (<argn> == 9) //list coowner
 		src.ctag0.list = coowner
 		sdialog d_house_menu 7
-	elseif (<argn> == 11)
+	// elseif (<argn> == 16) //remove coowner
+		// src.ctag0.list = coowner
+		// sdialog d_house_menu 7
+	elseif (<argn> == 11) //list friend
 		src.ctag0.list = friend
 		sdialog d_house_menu 8
+	// elseif (<argn> == 25) //remove friend
+		// src.ctag0.list = friend
+		// sdialog d_house_menu 8
 	elseif (<argn> == 12)
 		src.ctag0.list = access
 		sdialog d_house_menu 6
@@ -708,9 +694,6 @@ ONBUTTON=0,88
 		targetf, f_house_add_list 4
 	elseif (<argn> == 15)//ban
 		targetf, f_house_add_list 3
-	elseif (<argn> == 16) //remove coowner
-		src.ctag0.list = coowner
-		sdialog d_house_menu 17
 	elseif (<argn> == 17) //add coowner
 		targetf, f_house_add_list 1
 	elseif (<argn> == 18) //clear coowner
@@ -768,14 +751,11 @@ ONBUTTON=0,88
 				src.sysmessage @,,1 Теперь это частная собственность, и доступ к ней могут получить только совладельцы и друзья, а также те, кто включен в списки доступа.
 			enddo
 		endif
-		sdialog d_house_menu
+		sdialog d_house_menu 2
 	elseif (<argn> == 24)//rename house
 		dialog d_house_rename
-	elseif (<argn> == 25) //remove friend
-		src.ctag0.list = friend
-		sdialog d_house_menu 18
 	elseif (<argn> == 26)//recode doors
-		src.targetf f_d_house_secure
+		src.targetf f_d_house_secure <uid>
 		return 1
 	elseif (<argn> == 27)//transfer ownership
 		if (<tag0.demolition>)
@@ -783,6 +763,7 @@ ONBUTTON=0,88
 				src.sysmessage @<def.fail>,,1 This house is scheduled for demolition and cannot be traded.
 				src.sysmessage @<def.fail>,,1 Этот дом запланирован к сносу и по этой причине не может быть продан.
 			enddo
+			sdialog d_house_menu 5
 			return 1
 		endif
 		src.targetf f_house_transfer <uid>
@@ -899,13 +880,14 @@ ONBUTTON=0,88
 		if (<housetype> == <def.house_guild>)
 			housetype = <def.house_private>
 			ref7 = <tag0.is_guild>
-			local.abbrev = <qval <ISEMPTY <ref7.abbrev>>?[None]:<ref7.abbrev>>
+			local.abbrev = <qval <ISEMPTY <ref7.abbrev>>?None:<ref7.abbrev>>
 			tag0.is_guild =
 			resendtooltip
 			doswitch <src.f_LangShowNum>
 				src.sysmessage @,,1 This building is no longer a guildhouse [<local.abbrev>].
 				src.sysmessage @,,1 Это здание больше не является штаб-квартирой гильдии [<local.abbrev>].
 			enddo
+			sdialog d_house_menu 2
 			return 1
 		else
 			src.targetf, f_house_declare_guild <uid>
@@ -951,7 +933,16 @@ ONBUTTON=0,88
 		sdialog d_house_menu
 		return 1
 	elseif (<argn> == 75) //schedule demolition GM only
-		if !(<tag0.demolition>)
+		if (<tag0.demolition>)
+			tag.demolition =
+			resendtooltip
+			doswitch <src.f_LangShowNum>
+				src.sysmessage @,,1 The scheduled demolition has been cancelled.
+				src.sysmessage @,,1 Запланированный снос был отменен.
+			enddo
+			sdialog d_house_menu 5
+			return 1
+		else
 			if (<ref4.tag0.forsale>)
 				ref4.tag.forsale =
 				// tag.forsale =
@@ -981,7 +972,7 @@ ONBUTTON=0,88
 				local.closedialog = 1
 			endif
 			if <local.closedialog>
-				sdialog d_house_menu
+				sdialog d_house_menu 5
 				return 1
 			endif
 			tag0.demolition = <eval(<argtxt[1]>)>
@@ -991,20 +982,11 @@ ONBUTTON=0,88
 				src.sysmessage @,,1 Вы запланировали снос этого дома через <dtag0.demolition> дней.
 			enddo
 			resendtooltip
-			sdialog d_house_menu
-			return 1
-		else
-			tag.demolition =
-			resendtooltip
-			doswitch <src.f_LangShowNum>
-				src.sysmessage @,,1 The scheduled demolition has been cancelled.
-				src.sysmessage @,,1 Запланированный снос был отменен.
-			enddo
-			sdialog d_house_menu
+			sdialog d_house_menu 5
 			return 1
 		endif
-	// 83 = sign colorizer
-	// 84 = property tax
+	// elseif (<argn> == 83)
+	// elseif (<argn> == 84)
 	elseif (<argn> == 85)
 		local.daysleft = <eval(((<ref1.timer>/60)/60)/24)>
 		local.days = <eval(<ddef.hs_can_decay>-<dlocal.daysleft>)>
@@ -1086,7 +1068,7 @@ ONBUTTON=0,88
 				return 1
 			endif
 		else
-			ref1.timer = <eval(((<ddef.hs_can_decay>*24) *60) *60)>
+			ref1.timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay> //<eval(((<ddef.hs_can_decay>*24)*60)*60)>
 			serv.log <src.name>(<src.account>)[<src.uid>] update house <name>(<baseid>)[<uid>] decay timer of owner <ref3.name>(<ref3.account>)[<ref3.uid>]
 			doswitch <src.f_LangShowNum>
 				src.sysmessage @<def.fail>,,1 The house decay timer has been updated by a staff.
@@ -1104,14 +1086,14 @@ ONBUTTON=0,88
 	elseif (<argn> == 88) //normal
 		tag.decay_exempt =
 		ref1.attr |= 02
-		ref1.timer = 60*60*24*<def.hs_can_decay>
+		ref1.timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay>
 		sdialog d_house_menu
 	endif
 
-ONBUTTON=100,299 // rmv person from (x) list 
+ONBUTTON=100,199 // rmv person from (x) list
 	ref1 = <tag0.sign> //sign
 	local.list = <src.ctag0.list>
-	local.button <eval(<argn>-100)>
+	local.button = <eval(<argn>-100)>
 	if <<local.list><qval (strmatch(*access*,<local.list>))?es:s>>
 		if (<<local.list>.<dlocal.button>.uid> == <src.uid>)
 			ref5 = <src>
@@ -1140,10 +1122,19 @@ ONBUTTON=100,299 // rmv person from (x) list
 		endif
 	endif
 
+ONBUTTON=200,299 // gm goto person from (x) list 
+	ref1 = <tag0.sign> //sign
+	local.list = <src.ctag0.list>
+	local.button = <eval(<argn>-200)>
+	if <<local.list><qval (strmatch(*access*,<local.list>))?es:s>>
+		src.gouid <<local.list>.<dlocal.button>.uid>
+	endif
+
 ONBUTTON=2965,3140 // sign dispid
 	ref1 = <tag0.sign> //sign
-	ref1.dispid = <hval <argn>>
+	ref1.dispid = <hval(<argn>)>
 	ref1.update
+	sdialog d_house_menu 14
 	return 1
 
 ONBUTTON=12967,12978 //sign hanger
@@ -1238,11 +1229,12 @@ ONBUTTON=0
 ONBUTTON=1 // demolish
 	ref1 = <region.uid>
 	if (<housetype> == <def.house_guild>)
-		local.abbrev = [None]
+		local.abbrev = None
 		if <tag0.is_guild>
 			ref5 = <tag0.is_guild>
+			local.abbrev = None
 			if <ref5.isvalid>
-				local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?[None]:<ref5.abbrev>>
+				local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?None:<ref5.abbrev>>
 			endif
 		endif
 		doswitch <src.f_LangShowNum>
@@ -1483,7 +1475,7 @@ if (strmatch(*Britannic Realtors*, <ref3.name>))
 	owner <src>
 	ref3.remove
 	if <def.hs_can_decay>
-		ref1.timer = 60*60*24*<def.hs_can_decay>
+		ref1.timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay>
 	endif
 else
 	if <ref3.isplayer>
@@ -1546,8 +1538,9 @@ dhtmlgump 45 58 106 60 0 0 <def.center><def.h3><def.bfont_size7><name>
 if (<housetype> == <def.house_guild>)
 	if <tag0.is_guild>
 		ref5 = <tag0.is_guild>
+		local.abbrev = None
 		if <ref5.isvalid>
-			local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?[None]:<ref5.abbrev>>
+			local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?None:<ref5.abbrev>>
 		endif
 	endif
 	dhtmlgump 45 42 106 20 0 0 <def.center><def.bfont_dpurple>[<local.abbrev>]
@@ -1562,10 +1555,12 @@ doswitch <src.f_LangShowNum>
 	dorigin 50 130
 	dorigin 35 130
 enddo
-button - +2 4005 4007 1 0 1
+
 dhtmlgump +37 +5 100 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Confirm>
-button - +30 4017 4018 1 0 0
+button - +2 4005 4007 1 0 1
+
 dhtmlgump +37 +33 100 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Cancel>
+button - +30 4017 4018 1 0 0
 
 [DIALOG d_house_rename BUTTON]
 ONBUTTON=0
@@ -1605,7 +1600,7 @@ checkertrans 4 108 251 42
 
 dhtmlgump 10 10 240 20 0 0 <def.bfont_hs_red><def.center>!!! <def.HouseCtrl_<src.f_LangShow>_WARNING> !!!
 resizepic 13 32 3000 233 64
-dhtmlgump 10 36 240 60 0 0 <def.center><def.HouseCtrl_<src.f_LangShow>_ClrList> <def.BFONT_GREEN><def.HouseCtrl_<src.f_LangShow>_List<src.ctag0.list>><def.br><def.bfont_black><def.HouseCtrl_<src.f_LangShow>_DemolProceed3>
+dhtmlgump 10 36 240 60 0 0 <def.center><def.HouseCtrl_<src.f_LangShow>_ClrList><def.br><def.BFONT_GREEN><def.HouseCtrl_<src.f_LangShow>_List<src.ctag0.list>><def.br><def.bfont_black><def.HouseCtrl_<src.f_LangShow>_DemolProceed3>
 
 if !(strcmpi("<src.ctag0.list>","COOWNER"))
 	button 6 118 4005 4007 1 0 1
@@ -1659,7 +1654,7 @@ dhtmlgump 110 10 300 20 0 0 <def.bfont_hs_title><def.bfont_size7><def.center>Sig
 local.x = 20
 local.y = 50
 for 1 28
-	gumppictiled <local.x> <eval(<local.y> - 6)> 48 130 2624
+	gumppictiled <local.x> <eval(<local.y> - 6)> 48 130 <def0.dialog_hs_tile>
 	button <eval(<local.x> + 10)> <local.y> 4005 4007 1 0 <def.signpost_<dlocal._for>>
 	tilepic <local.x> <eval(<local.y> + 24)> <def.signpost_<dlocal._for>>
 	local.x += 60
@@ -1692,65 +1687,204 @@ ONBUTTON=1,1000
 
 [DIALOG d_house_secure]
 100,100
-ref1 = <region.uid>
+ref1 = <link.uid>
 
-f_house_dialog 0,0,200,180
+f_house_dialog 0,0,200,260 //180
 gumppictiled 4 30 190 5 5058  // top line
 checkertrans 4 30 190 5
-dhtmlgump 14 10 176 20 0 0 <def.center><def.bfont_hs_text1><name> <def.HouseCtrl_<src.f_LangShow>_Access>
-dhtmlgump 14 41 176 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Owner>: <def.bfont_hs_text2><uid.<link.owner>.name>
-// dhtmlgump 80 41 130 20 0 0 <def.bfont_hs_text2><uid.<link.owner>.name>
-dhtmlgump 47 73 180 20 0 0 <qval (<tag0.access>==<def.house_access_owner>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>><def.HouseCtrl_<src.f_LangShow>_OwnerOnly>
-dhtmlgump 47 93 180 20 0 0 <qval (<tag0.access>==<def.house_access_coowner>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>><def.HouseCtrl_<src.f_LangShow>_Coowners>
-dhtmlgump 47 113 180 20 0 0 <qval (<tag0.access>==<def.house_access_friend>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>><def.HouseCtrl_<src.f_LangShow>_Friends>
-dhtmlgump 47 133 180 20 0 0 <qval (<link.housetype>==<def.house_guild>)?<qval (<tag0.access>==<def.house_access_guild>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_GuildMemb>
-dhtmlgump 47 153 180 20 0 0 <qval (<tag0.access>==<def.house_access_all>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>><def.HouseCtrl_<src.f_LangShow>_Anyone>
-button 9 70 <qval (<tag0.access>==<def.house_access_owner>)? 4006 4006 0 0:4005 4007 1 0> 1
-button 9 90 <qval (<tag0.access>==<def.house_access_coowner>)? 4006 4006 0 0:4005 4007 1 0> 2
-button 9 110 <qval (<tag0.access>==<def.house_access_friend>)? 4006 4006 0 0:4005 4007 1 0> 3
-if <ref1.housetype> == <def.house_guild>
-	button 9 130 <qval (<tag0.access>==<def.house_access_guild>)? 4006 4006 0 0:4005 4007 1 0> 4
+dhtmlgump 14 10 176 20 0 0 <def.center><def.bfont_hs_text1><STRTOUPPER <name>> <def.HouseCtrl_<src.f_LangShow>_Access>
+dhtmlgump 14 41 176 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Owner>: <def.bfont_hs_text2><uid.<ref1.owner>.name>
+// dhtmlgump 80 41 130 20 0 0 <def.bfont_hs_text2><uid.<ref1.owner>.name>
+
+dorigin 40 54
+
+dhtmlgump +7 *20 180 20 0 0 <qval (<tag0.access> & <def.houseaccess_owner>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>><def.HouseCtrl_<src.f_LangShow>_Owner>
+button -31 -3 <qval (<tag0.access> & <def.houseaccess_owner>)? 4006 4006 1 0:4005 4007 1 0> 1
+
+dhtmlgump +7 *20 180 20 0 0 <qval (<tag0.access> & <def.houseaccess_coowner>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>><def.HouseCtrl_<src.f_LangShow>_Coowners>
+button -31 -3 <qval (<tag0.access> & <def.houseaccess_coowner>)? 4006 4006 1 0:4005 4007 1 0> 2
+
+dhtmlgump +7 *20 180 20 0 0 <qval (<tag0.access> & <def.houseaccess_friend>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>><def.HouseCtrl_<src.f_LangShow>_Friends>
+button -31 -3 <qval (<tag0.access> & <def.houseaccess_friend>)? 4006 4006 1 0:4005 4007 1 0> 3
+
+////////////
+dhtmlgump +7 *20 180 20 0 0 <qval (<ref1.owner.guild>)?<qval (<tag0.access> & <def.houseaccess_myguild>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_MyGuild>
+if <ref1.owner.guild>
+	button -31 -3 <qval (<tag0.access> & <def.houseaccess_myguild>)? 4006 4006 1 0:4005 4007 1 0> 4
 endif
-button 9 150 <qval (<tag0.access>==<def.house_access_all>)? 4006 4006 0 0:4005 4007 1 0> 5
+
+dhtmlgump +7 *20 180 20 0 0 <qval (<ref1.owner.guild>)?<qval (<tag0.access> & <def.houseaccess_myguildAlly>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_MyGuildAlly>
+if <ref1.owner.guild>
+	button -31 -3 <qval (<tag0.access> & <def.houseaccess_myguildAlly>)? 4006 4006 1 0:4005 4007 1 0> 5
+endif
+
+// dhtmlgump +7 *20 180 20 0 0 <qval (<ref1.owner.guild>)?<qval (<tag0.access> & <def.houseaccess_myguildWar>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_MyGuildWar>
+// if <ref1.owner.guild>
+	// button -31 -3 <qval (<tag0.access> & <def.houseaccess_myguildWar>)? 4006 4006 1 0:4005 4007 1 0> 6
+// endif
+////////////
+
+////////////
+if <ref1.tag0.is_guild>
+	ref5 = <ref1.tag0.is_guild>
+endif
+if (<ref1.housetype> & <def.house_guild>) && (<ref5.isvalid>) && (<ref5> != <ref1.owner.guild>)
+	local.guildIs = 1
+endif
+
+dhtmlgump +7 *20 180 20 0 0 <qval (<local.guildIs>)?<qval (<tag0.access> & <def.houseaccess_guild>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_GuildMemb>
+if (<local.guildIs>)
+	button -31 -3 <qval (<tag0.access> & <def.houseaccess_guild>)? 4006 4006 1 0:4005 4007 1 0> 7
+endif
+dhtmlgump +7 *20 180 20 0 0 <qval (<local.guildIs>)?<qval (<tag0.access> & <def.houseaccess_guildAlly>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_GuildMembAlly>
+if (<local.guildIs>)
+	button -31 -3 <qval (<tag0.access> & <def.houseaccess_guildAlly>)? 4006 4006 1 0:4005 4007 1 0> 8
+endif
+// dhtmlgump +7 *20 180 20 0 0 <qval (<local.guildIs>)?<qval (<tag0.access> & <def.houseaccess_guildWar>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>>:<def.bfont_hs_gray>><def.HouseCtrl_<src.f_LangShow>_GuildMembWar>
+// if (<local.guildIs>)
+	// button -31 -3 <qval (<tag0.access> & <def.houseaccess_guildWar>)? 4006 4006 1 0:4005 4007 1 0> 9
+// endif
+////////////
+
+dhtmlgump +7 *20 180 20 0 0 <qval (<tag0.access> & <def.houseaccess_all>)?<def.bfont_hs_text2>:<def.bfont_hs_text1>><def.HouseCtrl_<src.f_LangShow>_Anyone>
+button -31 -3 <qval (<tag0.access> & <def.houseaccess_all>)? 4006 4006 1 0:4005 4007 1 0> 10
 
 [DIALOG d_house_secure button]
 ONBUTTON=0
 	dialogclose
 	// sysmessage @,,2 1061281 // Access level unchanged.
 
-ONBUTTON=1,5
+ONBUTTON=1,10
+	ref1 = <link.uid>
+	
+	if <ref1.tag0.is_guild>
+		ref5 = <ref1.tag0.is_guild>
+	endif
+	
 	doswitch <eval(<argn> - 1)>
-		tag.access = <def.house_access_owner>
-		tag.access = <def.house_access_coowner>
-		tag.access = <def.house_access_friend>
-		tag.access = <def.house_access_guild>
-		tag.access = <def.house_access_all>
+		local.access = <def.houseaccess_owner> //1
+		local.access = <def.houseaccess_coowner> //2
+		local.access = <def.houseaccess_friend> //3
+		local.access = <def.houseaccess_myguild> //4
+		local.access = <def.houseaccess_myguildAlly> //5
+		local.access = <def.houseaccess_myguildWar> //6
+		local.access = <def.houseaccess_guild> //7
+		local.access = <def.houseaccess_guildAlly> //8
+		local.access = <def.houseaccess_guildWar> //9
+		local.access = <def.houseaccess_all> //10
 	enddo
+	if (<local.access> == <def.houseaccess_all>)
+		tag.access = <def.houseaccess_all>
+	elseif (<tag0.access> & <local.access>)
+		tag.access &= ~<local.access>
+		if (<local.access> == <def.houseaccess_owner>)
+			tag.access = <def.houseaccess_all>
+		elseif (<local.access> == <def.houseaccess_coowner>)
+			tag.access &= ~<def.houseaccess_friend>
+		endif
+		if (<local.access> == <def.houseaccess_myguild>)
+			tag.access &= ~<def.houseaccess_myguildAlly>
+			tag.access &= ~<def.houseaccess_myguildWar>
+		elseif (<local.access> == <def.houseaccess_guild>)
+			tag.access &= ~<def.houseaccess_guildAlly>
+			tag.access &= ~<def.houseaccess_guildWar>
+		endif
+	else
+		tag.access &= ~<def.houseaccess_all>
+		tag.access |= <def.houseaccess_owner>
+		tag.access |= <local.access>
+		if (<local.access> == <def.houseaccess_owner>)
+			tag.access = <def.houseaccess_owner>
+		elseif (<local.access> == <def.houseaccess_friend>)
+			tag.access |= <def.houseaccess_coowner>
+		elseif (<local.access> == <def.houseaccess_myguildAlly>) || (<local.access> == <def.houseaccess_myguildWar>)
+			tag.access |= <def.houseaccess_myguild>
+		elseif (<local.access> == <def.houseaccess_guildAlly>) || (<local.access> == <def.houseaccess_guildWar>)
+			tag.access |= <def.houseaccess_guild>
+		endif
+	endif
+	if (<tag.access> == <def.houseaccess_none>)
+		tag.access = <def.houseaccess_owner>
+	endif
+	
 	resendtooltip 1
-	doswitch <eval(<argn> - 1)>
-		doswitch <src.f_LangShowNum>
-			src.sysmessage @,,1 Only the Owner may now open this <name>.
-			src.sysmessage @,,1 Только собственник может открыть <name>.
-		enddo
-		doswitch <src.f_LangShowNum>
-			src.sysmessage @,,1 Only the Owner & Co-owners may now open this <name>.
-			src.sysmessage @,,1 Только собственник и совладельцы могут открывать <name>.
-		enddo
-		doswitch <src.f_LangShowNum>
-			src.sysmessage @,,1 Only the Owner, Co-owners & Friends of the house may now open this <name>.
-			src.sysmessage @,,1 Только собственник, совладельцы и друзья могут открывать <name>.
-		enddo
-		doswitch <src.f_LangShowNum>
-			src.sysmessage @,,1 Guild members may now open this <name>.
-			src.sysmessage @,,1 Только члены гильдии могут открывать <name>.
-		enddo
+	if (<tag.access> & <def.houseaccess_all>)
 		doswitch <src.f_LangShowNum>
 			src.sysmessage @,,1 Everyone can open <name> now.
 			src.sysmessage @,,1 Кто угодно может открывать <name>.
 		enddo
-	enddo
+	elseif (<tag.access> & <def.houseaccess_friend>)
+		doswitch <src.f_LangShowNum>
+			src.sysmessage @,,1 Only the Owner, Co-owners & Friends of the house may now open this <name>.
+			src.sysmessage @,,1 Только собственник, совладельцы и друзья могут открывать <name>.
+		enddo
+	elseif (<tag.access> & <def.houseaccess_coowner>)
+		doswitch <src.f_LangShowNum>
+			src.sysmessage @,,1 Only the Owner & Co-owners may now open this <name>.
+			src.sysmessage @,,1 Только собственник и совладельцы могут открывать <name>.
+		enddo
+	elseif (<tag.access> & <def.houseaccess_owner>)
+		doswitch <src.f_LangShowNum>
+			src.sysmessage @,,1 Only the Owner may now open this <name>.
+			src.sysmessage @,,1 Только собственник может открыть <name>.
+		enddo
+	endif
 	
-	link.sdialog d_house_menu
+	if <ref5.isvalid>
+		local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?None:<ref5.abbrev>>
+		if (<tag.access> & <def.houseaccess_guild>)
+			if (<tag.access> & <def.houseaccess_guildAlly>) && (<tag.access> & <def.houseaccess_guildWar>)
+				doswitch <src.f_LangShowNum>
+					src.sysmessage @,,1 Guild members, Allies and Enemy of my guild [<local.abbrev>] may now open this <name>.
+					src.sysmessage @,,1 Члены гильдии, ее союзники и враги могут открывать <name>.
+				enddo
+			elseif (<tag.access> & <def.houseaccess_guildAlly>)
+				doswitch <src.f_LangShowNum>
+					src.sysmessage @,,1 Guild members and Allies of my guild [<local.abbrev>] may now open this <name>.
+					src.sysmessage @,,1 Члены гильдии, а также союзники могут открывать <name>.
+				enddo
+			elseif (<tag.access> & <def.houseaccess_guildWar>)
+				doswitch <src.f_LangShowNum>
+					src.sysmessage @,,1 Guild members and Enemy of my guild [<local.abbrev>] may now open this <name>.
+					src.sysmessage @,,1 Члены гильдии, а также враги могут открывать <name>.
+				enddo
+			else
+				doswitch <src.f_LangShowNum>
+					src.sysmessage @,,1 Guild members of my guild [<local.abbrev>] may now open this <name>.
+					src.sysmessage @,,1 Только члены гильдии могут открывать <name>.
+				enddo
+			endif
+		endif
+	endif
+	
+	if <ref1.owner.guild>
+		if (<tag.access> & <def.houseaccess_myguild>) && (<ref1.owner.guild> != <ref5>)
+			if (<tag.access> & <def.houseaccess_myguildAlly>) && (<tag.access> & <def.houseaccess_myguildWar>)
+				doswitch <src.f_LangShowNum>
+					src.sysmessage @,,1 Guild members, Allies and Enemy of my Guild may now open this <name>.
+					src.sysmessage @,,1 Члены моей гильдии, ее союзники и враги могут открывать <name>.
+				enddo
+			elseif (<tag.access> & <def.houseaccess_myguildAlly>)
+				doswitch <src.f_LangShowNum>
+					src.sysmessage @,,1 Guild members and Allies of my Guild may now open this <name>.
+					src.sysmessage @,,1 Члены моей гильдии, а также союзники могут открывать <name>.
+				enddo
+			elseif (<tag.access> & <def.houseaccess_myguildWar>)
+				doswitch <src.f_LangShowNum>
+					src.sysmessage @,,1 Guild members and Enemy of my Guild may now open this <name>.
+					src.sysmessage @,,1 Члены моей гильдии, а также враги могут открывать <name>.
+				enddo
+			else
+				doswitch <src.f_LangShowNum>
+					src.sysmessage @,,1 Guild members of my Guild may now open this <name>.
+					src.sysmessage @,,1 Только члены моей гильдии могут открывать <name>.
+				enddo
+			endif
+		endif
+	endif
+
+	dialog d_house_secure
+	link.sdialog d_house_menu 2
 
 [DIALOG d_house_commands]
 100,100
@@ -1987,25 +2121,25 @@ ONBUTTON=3
 
 [FUNCTION f_house_RenderPlacementToolDlgBackground]
 resizepic 5 2 5054 481 420
-gumppictiled 10 10 470 20 2624
+gumppictiled 10 10 470 20 <def0.dialog_hs_tile>
 checkertrans 10 10 470 20
 
 dhtmlgump 10 11 470 20 0 0 <def.bfont_hs_title><def.center><def.HouseCtrl_<src.f_LangShow>_HousePTools>
-gumppictiled 10 40 470 20 2624
+gumppictiled 10 40 470 20 <def0.dialog_hs_tile>
 checkertrans 10 40 470 20
 
 dhtmlgump 50 41 120 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_HouseDescr>
 dhtmlgump 265 41 120 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Storages>
 dhtmlgump 330 41 120 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Lockdowns>
 dhtmlgump 430 41 120 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Costs>
-gumppictiled 10 70 470 279 2624
+gumppictiled 10 70 470 279 <def0.dialog_hs_tile>
 checkertrans 10 70 470 279
 
-gumppictiled 10 359 470 20 2624
+gumppictiled 10 359 470 20 <def0.dialog_hs_tile>
 checkertrans 10 359 470 20
 dhtmlgump 20 360 240 20 0 0 <def.bfont_hs_text3><def.HouseCtrl_<src.f_LangShow>_BankBal>: <def.bfont_hs_text2><f_math_cat <src.bankbalance>> gp
 
-gumppictiled 10 389 470 20 2624
+gumppictiled 10 389 470 20 <def0.dialog_hs_tile>
 checkertrans 10 389 470 20
 
 button 10 389 4017 4019 1 0 0

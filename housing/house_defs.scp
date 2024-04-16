@@ -26,63 +26,66 @@ VERSION=X1
 
 [DEFNAME housing_control]
 //general settings
-hs_can_bank						1		// set to 1 to allow players to bank from home. (verbal command)(owner, co-owners & friends only)
-hs_allow_custom					1		// Allow players to convert to custom houses 0 to disable
-hs_wipe_switch_lists			1		// if set to 1 access/ban lists are wiped when house is switched between private/public (helps reduce server memory)
+hs_can_bank						1		// Allow players to bank from home. (verbal command)(owner, co-owners & friends only)
+hs_allow_custom					1		// Allow players to convert to custom houses
+hs_wipe_switch_lists			1		// Wiped access/ban lists when house is switched between private/public (helps reduce server memory)
 
-hs_allow_sign_color				0		// Allow player to change the color of their house signs.
-hs_allow_sign_post				1		// Allow player to change the post of their house signs.
-hs_allow_sign_hanger			1		// Allow player to change the hanger of their house signs.
-hs_allow_foundation				0		// Allow player to change the foundantion of their house.  (Doesnt work right now)
+hs_allow_sign_color				1		// Allow player to change the color of their house signs
+hs_allow_sign_post				1		// Allow player to change the post of their house signs
+hs_allow_sign_hanger			1		// Allow player to change the hanger of their house signs
+// hs_allow_foundation				0		// Allow player to change the foundantion of their house. (Not implemented at the moment!!!)
 
 hs_hs_secure_locks_limit		1		// Lockdowns & Secures Zero to turn off limitations
-hs_secure_locks_limit			0		// Overwrite hardcoded placement check. (Doesnt work right now)
-hs_placement_check_roads		1		//
-hs_redeed_crate					1		// house items to crate on redeed
+// hs_secure_locks_limit			0		// Overwrite hardcoded placement check. (Not implemented at the moment!!!)
+hs_redeed_crate					1		// Place house items to crate and transfer to bank on redeed
 
-hs_placement_delay				3		// Number of days until you can place another house after build previous
-// hs_placement_ilshenar_facet		0	// Place house in Inhenar
+hs_placement_delay				0		// Number of days until you can place another house after build previous
+// hs_placement_ilshenar			0		// Allow player place house in Inhenar
 
-hs_door_acces_key				0		//Is set this and (<serv.AutoHouseKeys> == 1) - doors open with keys
+hs_door_acces_key				0		//If set this and (<serv.AutoHouseKeys> == 1) - doors open with keys
 
 //vendor settings
-house_list_vendors				0		// set to 1 to allow players on house list to place vendors, 0 = owner only
-house_sell						1		//set to 0 if you dont want to allow sell houses.
+house_list_vendors				0		// Allow players on "house list" to place vendors, if 0 = owner only
+house_sell						1		// Allow players sell houses.
 
 //Set these to the body types for vendors in your script
-vendor_deed_id				i_deed_vendor
-vendor_obody_male			c_vendor
-vendor_obody_female			c_vendor_f
+vendor_deed_id					i_deed_vendor
+vendor_obody_male				c_vendor
+vendor_obody_female				c_vendor_f
 
-//Taxes & Fees 
-hs_redeed_fee				10	// Cost to redeed a house % of house value, zero disables.
-hs_demolish_fee				5	// Cost to demolish a house % of house value, zero disables.
-hs_can_decay				30	// set to number of days for a house to decay, or set to 0 to disable
-hs_property_tax				10	// Set to % figure of house value to pay for maintenance on houses, WORKS ONLY WHEN hs_can_decay IS ON! zero disables.
-hs_PlaceMinDistFront		5	// Minimum front distance allowed between placed houses. Default = 5
-hs_PlaceMinDistArea			1	// Minimum area distance allowed between placed houses. Default = 1
+//Taxes & Fees
+hs_redeed_fee					10		// Cost to redeed a house % of house value, zero disables.
+hs_demolish_fee					5		// Cost to demolish a house % of house value, zero disables.
+hs_can_decay					30		// set to number of days for a house to decay, or set to 0 to disable
+hs_property_tax					10		// Set to % figure of house value to pay for maintenance on houses, WORKS ONLY WHEN hs_can_decay IS ON! zero disables.
 
-hs_estate_tax				2	// Extra charges for player with MORE than this many houses.  0 disables
-hs_estate_rate				10	// % per house over the hs_estate_tax
-hs_estate_calc				2	// 1 = flat <def.hs_estate_rate>% rate    2 = linear charge increase per house (1 over = + premium rate, 2 over = + premium rate*2, 3 over = + premium rate*3 e.t.c..) 
+// hs_PlaceMinDistFront			5	// Minimum front distance allowed between placed houses. Default = 5
+// hs_PlaceMinDistArea			1	// Minimum area distance allowed between placed houses. Default = 1
+// hs_placement_check_roads		1		//
 
-hs_buy_storage 				1	// if set to 1 allows players to increase secure storage by up to 100% via house sign, 0 to disable
+hs_estate_tax					2	// Extra charges for player with MORE than this many houses.  0 disables
+hs_estate_rate					10	// % per house over the hs_estate_tax
+hs_estate_calc					2	// 1 = flat <def.hs_estate_rate>% rate    2 = linear charge increase per house (1 over = + premium rate, 2 over = + premium rate*2, 3 over = + premium rate*3 e.t.c..) 
+
+hs_buy_storage 					1	// if set to 1 allows players to increase secure storage by up to 100% via house sign, 0 to disable
 
 //DO NOT ALTER THE FOLLOWING AFTER INITIAL SETUP!!! - - Doing so could cause problems when players go over these limits.
-hs_max_friend				20	// DO NOT SET THIS ONE ABOVE 20 Dialog doesn't have extra pages for above that amount (actual number is set from building size)
-hs_max_coowner				10	// DO NOT SET THIS ONE ABOVE 10 Dialog is not set up for more than that amount (actual number is set from building size)
-hs_max_ban					10	// DO NOT SET THIS ONE ABOVE 10 Dialog is not set up for more than that amount (actual number is set from building size)
-hs_max_access				10	// DO NOT SET THIS ONE ABOVE 10 Dialog is not set up for more than that amount (actual number is set from building size)
-
+hs_max_friend					20	// (DO NOT SET THIS ONE ABOVE 20) Dialog doesn't have extra pages for above that amount (actual number is set from building size)
+hs_max_coowner					10	// (DO NOT SET THIS ONE ABOVE 20) Dialog doesn't have extra pages for above that amount (actual number is set from building size)
+hs_max_ban						10	// (DO NOT SET THIS ONE ABOVE 20) Dialog doesn't have extra pages for above that amount (actual number is set from building size)
+hs_max_access					10	// (DO NOT SET THIS ONE ABOVE 20) Dialog doesn't have extra pages for above that amount (actual number is set from building size)
 
 // Dialog Settings
-dialog_hs_bg				5054                        // small dialogs background (resizepic)
-bfont_hs_title				<basefont color="#ffa500">  // orange
-bfont_hs_text1				<basefont color="#ffffff">  // white
-bfont_hs_text2				<basefont color="#ffff99">  // light yellow
-bfont_hs_text3				<basefont color="#d3d3d3">  // lgray
-bfont_hs_red				<basefont color="#ff3333">  // light red
-bfont_hs_gray				<basefont color="#808080">  // gray
+dialog_hs_bg					5054	// resizepic dialogs background
+dialog_hs_tile					2624	// gumppictiled dialogs background
+dialog_hs_frame					2716	// resizepic dialogs frame
+
+bfont_hs_title					<basefont color="#ffa500">  // orange
+bfont_hs_text1					<basefont color="#ffffff">  // white
+bfont_hs_text2					<basefont color="#ffff99">  // light yellow
+bfont_hs_text3					<basefont color="#d3d3d3">  // lgray
+bfont_hs_red					<basefont color="#ff3333">  // light red
+bfont_hs_gray					<basefont color="#808080">  // gray
 
 // Dialog Language Settings
 HouseCtrl_ENG_INFORMATION		INFORMATION
@@ -142,7 +145,12 @@ HouseCtrl_ENG_Owner				Owner
 HouseCtrl_ENG_OwnerOnly			Owner Only
 HouseCtrl_ENG_CoOwners			Co-owners
 HouseCtrl_ENG_Friends			Friends
+HouseCtrl_ENG_MyGuild			My Guild
+HouseCtrl_ENG_MyGuildAlly		My Guild Ally
+HouseCtrl_ENG_MyGuildWar		My Guild War
 HouseCtrl_ENG_GuildMemb			Guild Members
+HouseCtrl_ENG_GuildMembAlly		Ally Guild Members
+HouseCtrl_ENG_GuildMembWar		War Guild Members
 HouseCtrl_ENG_Anyone			Anyone
 
 HouseCtrl_ENG_Refreshed			This house is Automatically refreshed.
@@ -193,7 +201,9 @@ HouseCtrl_ENG_CustomizeH		Customize This House
 HouseCtrl_ENG_RelMoveCrate		Relocate Moving Crate
 HouseCtrl_ENG_CngSignID			Change House Sign
 HouseCtrl_ENG_CngSignCol		Change House Sign Color
+HouseCtrl_ENG_SignColor			Sign Color
 HouseCtrl_ENG_CngSignHng		Change House Sign Hanger
+HouseCtrl_ENG_SignHanger		Sign Hanger
 HouseCtrl_ENG_CngSignPst		Change House Signpost
 HouseCtrl_ENG_CngFoundat		Change Foundation Style
 HouseCtrl_ENG_RenameHouse		Rename House
@@ -208,9 +218,9 @@ HouseCtrl_ENG_ListFriend		Friend List
 HouseCtrl_ENG_ViewCoOwn			View Co-Owners List
 HouseCtrl_ENG_AddCoOwn			Add a Co-Owner
 HouseCtrl_ENG_RemCoOwn			Remove a Co-Owner
-HouseCtrl_ENG_ClrCoOwn			Clear Co-Owner List
+HouseCtrl_ENG_ClrCoowner		Clear Co-Owner List
 /////
-HouseCtrl_ENG_ViewFriend		View House Friends
+HouseCtrl_ENG_ViewFriend		View Friends List
 HouseCtrl_ENG_AddFriend			Add a Friend
 HouseCtrl_ENG_RemFriend			Remove a Friend
 HouseCtrl_ENG_ClrFriend			Clear Friend List
@@ -219,17 +229,15 @@ HouseCtrl_ENG_ViewAccess		View Access List
 HouseCtrl_ENG_ClrAccess			Clear Access List
 /////
 HouseCtrl_ENG_ViewBanList		View Ban List
-HouseCtrl_ENG_ClrBanList		Clear Ban List
+HouseCtrl_ENG_ClrBan			Clear Ban List
 /////
 HouseCtrl_ENG_RemGldhouse		Remove Guild Declaration
 HouseCtrl_ENG_SetGldhouse		Declare Guildhouse
 /////
-HouseCtrl_ENG_RecodeDoor		Recode Doors, Boxes
-HouseCtrl_ENG_OrTelepads		or Telepads
+HouseCtrl_ENG_RecodeDoor		Recode Doors, Boxes or Telepads
 HouseCtrl_ENG_Public			Public
 HouseCtrl_ENG_Private			Private
 HouseCtrl_ENG_ChangeTo			Change to
-// HouseCtrl_END_RecodeBox		Boxes
 /////
 
 
@@ -346,14 +354,19 @@ HouseCtrl_RUS_Owner				Владелец
 HouseCtrl_RUS_OwnerOnly			Только владелец
 HouseCtrl_RUS_CoOwners			Совладельцы
 HouseCtrl_RUS_Friends			Друзья
-HouseCtrl_RUS_GuildMemb			Согильдийцы
-HouseCtrl_RUS_Anyone			Кто угодно
+HouseCtrl_RUS_MyGuild			Моя гильдия
+HouseCtrl_RUS_MyGuildAlly		Наши союзники
+HouseCtrl_RUS_MyGuildWar		Наши враги
+HouseCtrl_RUS_GuildMemb			Члены гильдии
+HouseCtrl_RUS_GuildMembAlly		Союзники гильдии
+HouseCtrl_RUS_GuildMembWar		Враги гильдии
+HouseCtrl_RUS_Anyone			Свободно
 
 HouseCtrl_RUS_Refreshed			Дом автоматически обновлен.
 HouseCtrl_RUS_LastTraded		Куплен:
 HouseCtrl_RUS_PayTax			Оплатить налог на собственность
-HouseCtrl_RUS_TradeHouse		Продать дом
-HouseCtrl_RUS_HouseRemoval		Удаление дома
+HouseCtrl_RUS_TradeHouse		Передать дом
+HouseCtrl_RUS_HouseRemoval		Снос дома
 HouseCtrl_RUS_RemoveEnsure		Пожалуйста, убедитесь, что ваш дом пуст, прежде чем выставлять его на продажу. Все списки будут удалены и все двери будут открыты. Ваш дом будет открыт для просмотра, однако вы сохраните за собой контроль над ним до тех пор, пока он не будет куплен.
 HouseCtrl_RUS_PutForSale		Выставить дом на продажу
 HouseCtrl_RUS_TakeOffSale		Снять дом с продажи
@@ -381,8 +394,8 @@ HouseCtrl_RUS_LockdownUse		Закреплено предметов
 HouseCtrl_RUS_LockdownMax		Максимум закреплений
 HouseCtrl_RUS_LockdownMax2		Лимит Закреплений
 HouseCtrl_RUS_LockdownAvb		Доступно закреплений
-HouseCtrl_RUS_SecureUse			Использовано от объема склада
-HouseCtrl_RUS_UseMoveCont		Закреплено контейнеров
+HouseCtrl_RUS_SecureUse			Заполнение контейнеров
+HouseCtrl_RUS_UseMoveCont		Транспортировочные ящики
 HouseCtrl_RUS_Vendors			Торговцы
 
 HouseCtrl_RUS_IncreaseStor		Улучшить хранилище
@@ -393,10 +406,12 @@ HouseCtrl_RUS_IncrStorFor		за
 
 HouseCtrl_RUS_ConvCustomize		Преобразовать в "Строительную площадку" //Construction site
 HouseCtrl_RUS_CustomizeH		Перейти в режим "Стройки"
-HouseCtrl_RUS_RelMoveCrate		Переместить ящик
+HouseCtrl_RUS_RelMoveCrate		Переместить грузовой контейнер
 HouseCtrl_RUS_CngSignID			Поменять вид вывески
 HouseCtrl_RUS_CngSignCol		Поменять цвет вывески
+HouseCtrl_RUS_SignColor			Цвет вывески
 HouseCtrl_RUS_CngSignHng		Поменять кронштейн вывески
+HouseCtrl_RUS_SignHanger		Кронштейн вывески
 HouseCtrl_RUS_CngSignPst		Поменять опору вывески
 HouseCtrl_RUS_CngFoundat		Поменять вид фундамента
 HouseCtrl_RUS_RenameHouse		Переименовать дом
@@ -410,7 +425,7 @@ HouseCtrl_RUS_ListFriend		Список Друзей
 HouseCtrl_RUS_ViewCoOwn			Список Хозяев
 HouseCtrl_RUS_AddCoOwn			Добавить Хозяина
 HouseCtrl_RUS_RemCoOwn			Удалить Хозяина
-HouseCtrl_RUS_ClrCoOwn			Очистить Хозяев
+HouseCtrl_RUS_ClrCoowner		Очистить Хозяев
 /////
 HouseCtrl_RUS_ViewFriend		Список Друзей
 HouseCtrl_RUS_AddFriend			Добавить Друга
@@ -421,17 +436,15 @@ HouseCtrl_RUS_ViewAccess		Список Доступа
 HouseCtrl_RUS_ClrAccess			Очистить Доступ
 /////
 HouseCtrl_RUS_ViewBanList		Список Изгнания
-HouseCtrl_RUS_ClrBanList		Очистить Изгнание
+HouseCtrl_RUS_ClrBan			Очистить Изгнание
 /////
-HouseCtrl_RUS_RemGldhouse		Распустить Штаб
-HouseCtrl_RUS_SetGldhouse		Объявить Штабом
+HouseCtrl_RUS_RemGldhouse		Распустить Штаб Гильдии
+HouseCtrl_RUS_SetGldhouse		Объявить Штабом Гильдии
 /////
-HouseCtrl_RUS_RecodeDoor		Кодировать двери,
-HouseCtrl_RUS_OrTelepads		ящики, порталы
+HouseCtrl_RUS_RecodeDoor		Кодировать двери, ящики или порталы
 HouseCtrl_RUS_Public			Публичный
 HouseCtrl_RUS_Private			Частный
-HouseCtrl_RUS_ChangeTo			Режим
-// HouseCtrl_RUS_RecodeBox			Boxes
+HouseCtrl_RUS_ChangeTo			Сменить режим на
 /////
 
 HouseCtrl_RUS_Houses			Кол-во домов
@@ -454,10 +467,10 @@ HouseCtrl_RUS_HouseVal			стоимости дома
 HouseCtrl_RUS_HouseVal2			от стоимости дома
 HouseCtrl_RUS_TaxRegRate		регионально
 HouseCtrl_RUS_UpStdAllow		за каждый дом сверх станд.кол-ва
-HouseCtrl_RUS_Pay				Оплатите
+HouseCtrl_RUS_Pay				Оплатить
 HouseCtrl_RUS_ToAdd				за
 HouseCtrl_RUS_ToQTS				шт.
-HouseCtrl_RUS_NoPropTax			Это здание не облагается налогом.
+HouseCtrl_RUS_NoPropTax			В данный момент оплата налога не требуется. //Это здание не облагается налогом.
 HouseCtrl_RUS_StaffOver			Административные Возможности
 HouseCtrl_RUS_ResDecTmr			Уст-ть таймер разрушения на
 
@@ -484,6 +497,7 @@ HouseCtrl_RUS_Prev				Предыдущий
 
 HouseCtrl_RUS_Cancel			Отменить
 HouseCtrl_RUS_Confirm			Подтвердить
+
 
 HouseCtrl_RUS_InvalTrg			Неправильная цель.
 
@@ -676,13 +690,21 @@ house_custom_3story_53		"m_foundation_18x16"
 house_custom_3story_54		"m_foundation_18x17"
 house_custom_3story_55		"m_foundation_18x18"
 
-[DEFNAME house_access_level]
-house_access_none			0
-house_access_owner			1
-house_access_coowner		2
-house_access_friend			3
-house_access_guild			4
-house_access_all			5
+/////
+houseaccess_none			0
+houseaccess_owner			01
+houseaccess_coowner			02
+houseaccess_friend			04
+
+houseaccess_myguild			010
+houseaccess_myguildAlly		020
+houseaccess_myguildWar		040
+
+houseaccess_guild			0100
+houseaccess_guildAlly		0200
+houseaccess_guildWar		0400
+
+houseaccess_all				0800
 
 [DEFNAME house_container_access_level]
 house_container_access_all			0

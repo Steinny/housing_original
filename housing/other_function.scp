@@ -276,4 +276,32 @@ if (<argn1> & 02)
 	ref2.tag.lasttransfer = <local.todate>
 endif
 
+[FUNCTION LOGOPEN]
+if !(<serv.OptionFlags> & 080) //OF_FileCommands
+	return 0
+endif
+if !(<FILE.INUSE>)
+	local.file = "logs/<args><SERV.RTIME.FORMAT %Y>-<SERV.RTIME.FORMAT %m>-<SERV.RTIME.FORMAT %d>.log"
+	FILE.MODE.APPEND = 1
+	LOCAL.FILE = <FILE.OPEN <local.file>>
+endif
+return 0
+
+[FUNCTION LOGWRITE]
+if !(<serv.OptionFlags> & 080) //OF_FileCommands
+	serv.log <argv[1]>
+	return 0
+endif
+IF (<FILE.INUSE>)
+	FILE.WRITELINE <SERV.RTIME.FORMAT %H>:<SERV.RTIME.FORMAT %M>:<argv[1]>
+endif
+
+[FUNCTION LOGFLUSH]
+if !(<serv.OptionFlags> & 080) //OF_FileCommands
+	return 0
+endif
+FILE.FLUSH
+FILE.CLOSE
+
+
 [EOF]

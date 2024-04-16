@@ -16,7 +16,7 @@ On=@HouseSysInit
 	else
 		if <def.hs_can_decay>
 			attr = 02|010
-			timer = 60*60*24*<def.hs_can_decay>
+			timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay>
 		else
 			attr = 010
 			timer = -1
@@ -30,12 +30,13 @@ On=@HouseSysInit
 		ref1 = <uid> //sign
 		ref2 = <link> //house
 		ref3 = <link.owner> //owner
-		call f_return_todate <serv.rtime>
 		
-		ref2.tag.sign = <uid>
-		tag.sign_dispid = <hval(<dispid> & ~0a8f00000)>
-		ref2.tag.buildon = <local.todate>
+		call f_house_init 01
 		
+		local.file_name = secure/secure //you need to create in dir /logs -- dir /secure
+		LOGOPEN <local.file_name>
+		LOGWRITE <local.file_name>,[BUILD] House <link.name>[<link.uid>] build by <ref3.name>(<ref3.account>)[<ref3.uid>]
+		LOGFLUSH <local.file_name>
 		resendtooltip 1,0
 	endif
 
@@ -123,7 +124,7 @@ On=@DClick
 			if !(<attr> & 02)
 				attr |= 02
 				if (<timer> < 0)
-					timer = 60*60*24*<def.hs_can_decay>
+					timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay>
 				endif
 			endif
 		endif
@@ -262,19 +263,9 @@ On=@ContextMenuSelect
 	endif
 
 On=@ClientToolTip
-	if !((<def0.hs_door_acces_key>) && (<serv.AutoHouseKeys>))
-		if (<tag0.access> == house_access_owner)
-			addcliloc 1060658,Access,<def.bfont_lyellow>Owner Only<def.bfont_white>
-		elseif (<tag0.access> == house_access_coowner)
-			addcliloc 1060658,Access,<def.bfont_lyellow>Co-Owners<def.bfont_white>
-		elseif (<tag0.access> == house_access_friend)
-			addcliloc 1060658,Access,<def.bfont_lyellow>Friends<def.bfont_white>
-		elseif (<tag0.access> == house_access_guild)
-			ref1 = <tag.is_guild>
-			if <ref1.isvalid>
-				addcliloc 1114773,<def.bfont_lyellow>[<ref1.abbrev>]<def.bfont_white>,Guild Members Only
-			endif
-		endif
+	if ((<def0.hs_door_acces_key>) && (<serv.AutoHouseKeys>))
+	else
+		f_house_msg_access 01
 	endif
 
 On=@DClick
@@ -310,7 +301,7 @@ On=@DClick
 			if !<def.hs_property_tax>
 				if (<ref1.isowner <src>>)
 					if !(<ref1.tag0.demolition>)
-						ref1.link.timer = 60*60*24*<def.hs_can_decay>
+						ref1.link.timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay>
 					else
 						src.sysmessage @32,,1 <def.HouseCtrl_<src.f_LangShow>_MsgShedDemol> <local.decaymsg>.
 						src.sysmessage @32,,1 <def.HouseCtrl_<src.f_LangShow>_MsgDemolRefund>.
@@ -370,18 +361,7 @@ On=@Click
 
 On=@ClientToolTip
 	addcliloc 501644
-	if (<tag0.access> == house_access_owner)
-		addcliloc 1060658,Access,<def.bfont_lyellow>Owner Only<def.bfont_white>
-	elif (<tag0.access> == house_access_coowner)
-		addcliloc 1060658,Access,<def.bfont_lyellow>Co-Owners<def.bfont_white>
-	elif (<tag0.access> == house_access_friend)
-		addcliloc 1060658,Access,<def.bfont_lyellow>Friends<def.bfont_white>
-	elseif (<tag0.access> == house_access_guild)
-		ref1 = <tag.is_guild>
-		if <ref1.isvalid>
-			addcliloc 1114773,<def.bfont_lyellow>[<ref1.abbrev>]<def.bfont_white>,Guild Members Only
-		endif
-	endif
+	f_house_msg_access 01
 
 On=@ContextMenuRequest
 	ref1 = <region.uid>
@@ -433,24 +413,10 @@ On=@Click
 	f_house_msg_access
 
 On=@ClientToolTip
-	if (<tag0.access> == house_access_owner)
-		addcliloc 1060658,Access,<def.bfont_lyellow>Owner Only<def.bfont_white>
-	elseif (<tag0.access> == house_access_coowner)
-		addcliloc 1060658,Access,<def.bfont_lyellow>Co-Owners<def.bfont_white>
-	elseif (<tag0.access> == house_access_friend)
-		addcliloc 1060658,Access,<def.bfont_lyellow>Friends<def.bfont_white>
-	elseif (<tag0.access> == house_access_guild)
-		if <link.tag0.is_guild>
-			ref5 = <link.tag0.is_guild>
-			if <ref5.isvalid>
-				local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?[None]:<ref5.abbrev>>
-			endif
-		endif
-		addcliloc 1114773,<def.bfont_lyellow>[<local.abbrev>]<def.bfont_white>,Guild Members Only
-	endif
+	f_house_msg_access 01
 
 On=@Step
-	if !(<link> == <def.link_invalid>)
+	if (<link> != <def.link_invalid>)
 		if !(<src.isgm>)
 			if (<f_house_can_access>)
 				return 0

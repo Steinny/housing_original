@@ -4,6 +4,8 @@
 //****************************************************************************
 VERSION=X1
 
+//.xhousemulticount 0 
+
 [FUNCTION f_house_placement]
 serv.newitem i_gold
 new.type = t_deed
@@ -27,87 +29,182 @@ new.remove
 
 [FUNCTION f_house_can_access]
 ref1 = <region.uid>
-// if (<tag0.access> == <def.house_access_none>)
-	// return 1
-// endif
-if (<tag0.access> == <def.house_access_all> || <src.IsGM>)
+if (<tag0.access> == <def.houseaccess_none>)
+	tag0.access = <def.houseaccess_owner>
+endif
+if (<tag0.access> == <def.houseaccess_all> || <src.IsGM>)
 	return 1
 endif
 local.AccessLevel = <ref1.f_house_get_priv <src>>
 if (<local.AccessLevel> == 0)
 	return 0
-elseif (<tag0.access> == <def.house_access_friend>)
-	if (<local.AccessLevel> <= <def.house_access_friend>)
-		return 1
-	endif
-elseif (<tag0.access> == <def.house_access_coowner>)
-	if (<local.AccessLevel> <= <def.house_access_coowner>)
-		return 1
-	endif
-elseif (<tag0.access> == <def.house_access_owner>)
-	if (<local.AccessLevel> == <def.house_access_owner>)
-		return 1
-	endif
-elseif (<tag0.access> == <def.house_access_guild>)
-	if ((<local.AccessLevel> == <def.house_access_guild>))
-		return 1
-	endif
-endif
-return 0
-
-[FUNCTION f_house_msg_access]
-if (<tag0.access> == house_access_none)
-	doswitch <src.f_LangShowNum>
-		message @,,1 Security Lvl unspecified
-		message @,,1 Уровень доступа не указан
-	enddo
+elseif (<local.AccessLevel> & <tag0.access>)
 	return 1
 endif
-if (<tag0.access> == house_access_owner)
-	doswitch <src.f_LangShowNum>
-		message @,,1 Owner Only
-		message @,,1 Только собственник
-	enddo
-elseif (<tag0.access> == house_access_coowner)
-	doswitch <src.f_LangShowNum>
-		message @,,1 Co-Owners Only
-		message @,,1 Только совладельцы
-	enddo
-elseif (<tag0.access> == house_access_friend)
-	doswitch <src.f_LangShowNum>
-		message @,,1 Friends Only
-		message @,,1 Только друзья
-	enddo
-elseif (<tag0.access> == house_access_guild)
-	if <link.tag0.is_guild>
-		ref5 = <link.tag0.is_guild>
-		if <ref5.isvalid>
-			local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?[None]:<ref5.abbrev>>
-		endif
-	endif
-	doswitch <src.f_LangShowNum>
-		message @,,1 [<local.abbrev>] Members Only
-		message @,,1 Только члены гильдии [<local.abbrev>]
-	enddo
-endif
+return 0
 
 [FUNCTION f_house_get_priv]
 ref1 = <argn1>
 if (<IsOwner <ref1>>)
-	return <def.house_access_owner>
-elseif (<getCoownerpos <ref1>> >= 0)
-	return <def.house_access_coowner>
-elseif (<getFriendpos <ref1>> >= 0)
-	return <def.house_access_friend>
-elseif (<owner.guild>)
-	if (<owner.guild> == <ref1.guild>)
-		local.priv = <ref1.guild.memberfromuid.<ref1>.priv>
-		if ((<local.priv> == 1) || (<local.priv> == 2)) // 1 = member, 2 = master
-			return <def.house_access_guild>
+	local.access |= <def.houseaccess_owner>
+endif
+if (<getCoownerpos <ref1>> >= 0)
+	local.access |= <def.houseaccess_coowner>
+endif
+if (<getFriendpos <ref1>> >= 0)
+	local.access |= <def.houseaccess_friend>
+endif
+
+if <ref1.guild>
+	ref8 = <ref1.guild>
+	local.priv = <ref8.memberfromuid.<ref1>.priv>
+	if ((<local.priv> == 1) || (<local.priv> == 2)) // 1 = member, 2 = master
+		if <tag0.is_guild>
+			ref5 = <tag0.is_guild>
+			if (<ref5.isvalid>)
+				if (<ref8> == <ref5>)
+					local.access |= <def.houseaccess_guild>
+				endif
+				if (<ref8.guildfromuid.<ref5>.isally>)
+					local.access |= <def.houseaccess_guildAlly>
+				endif
+				if (<ref8.guildfromuid.<ref5>.isenemy>)
+					local.access |= <def.houseaccess_guildWar>
+				endif
+			endif
+		endif
+
+		if (<ref8> == <owner.guild>)
+			local.access |= <def.houseaccess_myguild>
+			if (<ref8.guildfromuid.<owner.guild>.isally>)
+				local.access |= <def.houseaccess_myguildAlly>
+			endif
+			if (<ref8.guildfromuid.<owner.guild>.isenemy>)
+				local.access |= <def.houseaccess_myguildWar>
+			endif
 		endif
 	endif
 endif
-return <def.house_access_none>
+// if !<owner.guild>
+	// tag.access &= ~<def.houseaccess_myguild>
+	// tag.access &= ~<def.houseaccess_myguildAlly>
+	// tag.access &= ~<def.houseaccess_myguildWar>
+// endif
+// ref5 = <tag0.is_guild>
+// if !<ref5.isvalid>
+	// tag0.is_guild =
+	// tag.access &= ~<def.houseaccess_guild>
+	// tag.access &= ~<def.houseaccess_guildAlly>
+	// tag.access &= ~<def.houseaccess_guildWar>
+// endif
+return <local.access>
+
+[FUNCTION f_house_msg_access]
+local.message = ""
+local.message2 = ""
+local.message3 = ""
+if (<tag0.access> == houseaccess_none)
+	doswitch <src.f_LangShowNum>
+		local.message = Security Lvl unspecified
+		local.message = Уровень доступа не указан
+	enddo
+	if (<argn1> == 0)
+		message @,,1 <local.message>
+	elseif (<argn1> & 01)
+		addcliloc 1060658,Access,<def.bfont_lyellow><local.message>
+	endif
+	return 1
+endif
+if (<tag0.access> & houseaccess_friend)
+	doswitch <src.f_LangShowNum>
+		local.message = Owner & Coowner & Friends Only
+		local.message = Только друзья
+	enddo
+elseif (<tag0.access> & houseaccess_coowner)
+	doswitch <src.f_LangShowNum>
+		local.message = Owner && Coowners Only
+		local.message = Только совладельцы
+	enddo
+elseif (<tag0.access> & houseaccess_owner)
+	doswitch <src.f_LangShowNum>
+		local.message = Owner Only
+		local.message = Только собственник
+	enddo
+endif
+
+if <link.tag0.is_guild>
+	ref5 = <link.tag0.is_guild>
+	if <ref5.isvalid>
+		local.abbrev = <qval <ISEMPTY <ref5.abbrev>>?None:<ref5.abbrev>>
+		if (<tag0.access> & houseaccess_guildAlly) && (<tag0.access> & houseaccess_guildWar)
+			doswitch <src.f_LangShowNum>
+				local.message2 = [<local.abbrev>] Members Ally & Enemy Only
+				local.message2 = Только члены гильдии [<local.abbrev>] их союзники и враги.
+			enddo
+		elseif (<tag0.access> & houseaccess_guildAlly)
+			doswitch <src.f_LangShowNum>
+				local.message2 = [<local.abbrev>] Members Only
+				local.message2 = Только члены гильдии [<local.abbrev>] и их союзники.
+			enddo
+		elseif (<tag0.access> & houseaccess_guildWar)
+			doswitch <src.f_LangShowNum>
+				local.message2 = [<local.abbrev>] Members Only
+				local.message2 = Только члены гильдии [<local.abbrev>] и их враги.
+			enddo
+		elseif (<tag0.access> & houseaccess_guild)
+			doswitch <src.f_LangShowNum>
+				local.message2 = [<local.abbrev>] Members Only
+				local.message2 = Только члены гильдии [<local.abbrev>]
+			enddo
+		endif
+	endif
+endif
+
+if <link.owner.guild> && (<link.owner.guild> != <ref5>)
+	ref8 = <link.owner.guild>
+	local.abbrev = <qval <ISEMPTY <ref8.abbrev>>?None:<ref8.abbrev>>
+	if (<tag0.access> & houseaccess_myguildAlly) && (<tag0.access> & houseaccess_myguildWar)
+		doswitch <src.f_LangShowNum>
+			local.message3 = [<local.abbrev>] Members Ally & Enemy Only
+			local.message3 = Только члены гильдии [<local.abbrev>] их союзники и враги.
+		enddo
+	elseif (<tag0.access> & houseaccess_myguildAlly)
+		doswitch <src.f_LangShowNum>
+			local.message3 = [<local.abbrev>] Members Only
+			local.message3 = Только члены гильдии [<local.abbrev>] и их союзники.
+		enddo
+	elseif (<tag0.access> & houseaccess_myguildWar)
+		doswitch <src.f_LangShowNum>
+			local.message3 = [<local.abbrev>] Members Only
+			local.message3 = Только члены гильдии [<local.abbrev>] и их враги.
+		enddo
+	elseif (<tag0.access> & houseaccess_myguild)
+		doswitch <src.f_LangShowNum>
+			local.message3 = [<local.abbrev>] Members Only
+			local.message3 = Только члены гильдии [<local.abbrev>]
+		enddo
+	endif
+endif
+
+if (<argn1> == 0)
+	message @,,1 <local.message>
+	if !<ISEMPTY <local.message2>>
+		message @,,1 <local.message2>
+	endif
+	if !<ISEMPTY <local.message3>>
+		message @,,1 <local.message3>
+	endif
+elseif (<argn1> & 01)
+	addcliloc 1060658,Access,<def.bfont_lyellow><local.message>
+	if !<ISEMPTY <local.message2>>
+		message @,,1 Access,<def.bfont_lyellow><local.message2>
+	endif
+	if !<ISEMPTY <local.message3>>
+		message @,,1 Access,<def.bfont_lyellow><local.message3>
+	endif
+endif
+
+
 
 [FUNCTION f_house_render_list]
 ref1 = <owner>
@@ -115,36 +212,73 @@ local.list = <argv[0]>
 dhtmlgump 88 125 220 20 0 0 <def.bfont_hs_title><def.center><def.HouseCtrl_<src.f_LangShow>_List<local.list>> <def.bfont_hs_text3>(<<local.list><qval (strmatch(*access*,<local.list>))?es:s>> / <def0.hs_max_<local.list>>)
 if (strmatch(*ban*,<local.list>))
 	local.fontcolor = <def.bfont_lred>
+	local.clear = 22
 elseif (strmatch(*access*,<local.list>))
 	local.fontcolor = <def.bfont_lgray>
+	local.clear = 21
 else
-	local.fontcolor = <def.bfont_white>
+	local.fontcolor = <def.bfont_black>
 endif
+if (strmatch(*coowner*,<local.list>))
+	local.clear = 18
+elseif (strmatch(*friend*,<local.list>))
+	local.clear = 20
+endif
+
 local.x = 7
 local.y = 170
 if <<local.list><qval (strmatch(*access*,<local.list>))?es:s>>
 	for 0 <eval <<local.list><qval (strmatch(*access*,<local.list>))?es:s>>-1>
-		if ((<isowner <src>>) || (<get<local.list>pos <src>> >= 0) || (<src.isgm>)) && ((strmatch(*coowner*,<local.list>)) || (strmatch(*friend*,<local.list>)))
-			if (<<local.list>.<local._for>> == <src.uid>) || (<isowner <src>>) || (<src.isgm>)
-				dhtmlgump <eval(<local.x>+36)> <eval(<local.y>+3)> 120 20 0 0 <local.fontcolor><<local.list>.<local._for>.name>
-				if <argv[1]>
-					button <local.x> <local.y> 4017 4018 1 0 <eval(100+<local._for>)>
-				endif
+		local.restr = 0
+		if ((<isowner <src>>) || (<src.isgm>))
+			local.restr = 1
+		elseif (<get<local.list>pos <src>> >= 0) && ((strmatch(*coowner*,<local.list>)) || (strmatch(*friend*,<local.list>)))
+			if (<<local.list>.<local._for>> == <src.uid>)
+				local.restr = 1
+			endif
+		elseif (<GetCoownerPos <src>> >= 0) && ((strmatch(*friend*,<local.list>)) || (strmatch(*access*,<local.list>)) ||(strmatch(*ban*,<local.list>)))
+			local.restr = 1
+		endif
+		
+		if (<local.restr>)
+			gumppictiled <eval(<local.x>+66)> <eval(<local.y>)+2> 125 18 <eval(<def.dialog_hs_bg>+4)>
+			checkertrans <eval(<local.x>+66)> <eval(<local.y>)+2> 125 18
+			dhtmlgump <eval(<local.x>+69)> <eval(<local.y>+4)> 120 20 0 0 <local.fontcolor><<local.list>.<local._for>.name>
+			if <src.isgm>
+				button <eval(<local.x>+3)> <local.y> 4003 4003 1 0 <eval(200+<local._for>)>
 			else
-				dhtmlgump <eval(<local.x>+36)> <eval(<local.y>+3)> 120 20 0 0 <local.fontcolor><<local.list>.<local._for>.name>
+				gumppic <eval(<local.x>+3)> <local.y> 4008
 			endif
-		elseif ((<isowner <src>>) || (<GetCoownerPos <src>> >= 0) || (<src.isgm>)) && ((strmatch(*friend*,<local.list>)) || (strmatch(*access*,<local.list>)) ||(strmatch(*ban*,<local.list>)))
-			dhtmlgump <eval(<local.x>+36)> <eval(<local.y>+3)> 120 20 0 0 <local.fontcolor><<local.list>.<local._for>.name>
 			if <argv[1]>
-				button <local.x> <local.y> 4017 4018 1 0 <eval(100+<local._for>)>
+				button <eval(<local.x>+33)> <local.y> 4018 4018 1 0 <eval(100+<local._for>)>
+			else
+				gumppic <eval(<local.x>+33)> <local.y> 4020
 			endif
+		else
+			gumppictiled <eval(<local.x>+66)> <eval(<local.y>)+2> 125 18 <eval(<def.dialog_hs_bg>+4)>
+			dhtmlgump <eval(<local.x>+69)> <eval(<local.y>+4)> 120 20 0 0 <local.fontcolor><<local.list>.<local._for>.name>
+			gumppic <eval(<local.x>+3)> <local.y> 4008
+			gumppic <eval(<local.x>+33)> <local.y> 4020
 		endif
 		local.y += 20
 		if (<local.y> >= 370)
-			local.x += 124
+			local.x += 189
 			local.y = 170
 		endif
 	endfor
+endif
+
+if ((<isowner <src>>) || (<src.isgm>))
+	local.remyes = 1
+elseif (<GetCoownerPos <src>> >= 0) && ((strmatch(*friend*,<local.list>)))
+	local.remyes = 1
+elseif ((<GetFriendPos <src>> >= 0) || (<GetCoownerPos <src>> >= 0)) && ((strmatch(*access*,<local.list>)) ||(strmatch(*ban*,<local.list>)))
+	local.remyes = 1
+endif
+
+if <local.remyes>
+	dhtmlgump 43 383 250 20 0 0 <def.bfont_hs_text1><def.HouseCtrl_<src.f_LangShow>_Clr<local.list>>
+	button 6 380 4005 4007 1 0 <local.clear>
 endif
 
 [FUNCTION f_house_render_signs]
@@ -186,207 +320,211 @@ for 1 114
 endfor
 
 [FUNCTION f_house_add_list]
-if !<argo>
-	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
-	return 1
-endif
 ref1 = <region.uid>
 ref2 = <argo>
-if <ref2.isplayer>
-	if (<ref2> == <src>)
-		doswitch <eval(<argn> - 1)>
-			local.list = Coowner
-			local.list = Friend
-			local.list = Ban
-			local.list = Access
-		enddo
+if !<argo>
+	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	ref1.sdialog d_house_menu 2
+	return 1
+endif
+if !<ref2.isplayer>
+	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	ref1.sdialog d_house_menu 2
+	return 1
+endif
+if (<ref2> == <src>)
+	doswitch <eval(<argn> - 1)>
+		local.list = Coowner
+		local.list = Friend
+		local.list = Ban
+		local.list = Access
+	enddo
+	doswitch <src.f_LangShowNum>
+		src.sysmessage @<def.fail>,,1 You cannot add yourself to the <def.HouseCtrl_<src.f_LangShow>_List<local.list>>.
+		src.sysmessage @<def.fail>,,1 Вы не можете добавить самого себя в <def.HouseCtrl_<src.f_LangShow>_List<local.list>>.
+	enddo
+	ref1.sdialog d_house_menu 2
+	return 1
+endif
+if (<ref1.isowner <ref2>>)
+	doswitch <src.f_LangShowNum>
+		src.sysmessage @<def.fail>,,1 <ref2.name> is the owner of this property.
+		src.sysmessage @<def.fail>,,1 <ref2.name> имеет статус "Собственника" дома.
+	enddo
+	ref1.sdialog d_house_menu 2
+	return 1
+elseif (<ref1.GetCoownerPos <ref2>> >= 0)
+	doswitch <src.f_LangShowNum>
+		begin
+			src.sysmessage @<def.fail>,,1 <ref2.name> is a co-owner of this property.
+			src.sysmessage @<def.fail>,,1 remove them from this list before adding them to another.
+		end
+		begin
+			src.sysmessage @<def.fail>,,1 <ref2.name> имеет статус "Совладельца" дома.
+			src.sysmessage @<def.fail>,,1 сперва удалите его из списка совладельцев, прежде чем добавить в другой.
+		end
+	enddo
+	ref1.sdialog d_house_menu 2
+	return 1
+elseif (<ref1.GetFriendPos <ref2>> >= 0)
+	doswitch <src.f_LangShowNum>
+		begin
+			src.sysmessage @<def.fail>,,1 <ref2.name> is a friend of this property.
+			src.sysmessage @<def.fail>,,1 remove them from this list before adding them to another.
+		end
+		begin
+			src.sysmessage @<def.fail>,,1 <ref2.name> имеет статус "Друга" дома.
+			src.sysmessage @<def.fail>,,1 сперва удалите его из списка друзей, прежде чем добавить в другой.
+		end
+	enddo
+	ref1.sdialog d_house_menu 2
+	return 1
+elseif (<ref1.GetAccessPos <ref2>> >= 0)
+	doswitch <src.f_LangShowNum>
+		begin
+			src.sysmessage @<def.fail>,,1 <ref2.name> is on the access list.
+			src.sysmessage @<def.fail>,,1 remove them from this list before adding them to another.
+		end
+		begin
+			src.sysmessage @<def.fail>,,1 <ref2.name> входит в Список Доступа дома.
+			src.sysmessage @<def.fail>,,1 сперва удалите его из этого списка, прежде чем добавить в другой.
+		end
+	enddo
+	ref1.sdialog d_house_menu 2
+	return 1
+elseif (<ref1.GetBanPos <ref2>> >= 0)
+	doswitch <src.f_LangShowNum>
+		begin
+			src.sysmessage @<def.fail>,,1 src.sysmessage @<def.fail>,,1 <ref2.name> is on the bans list.
+			src.sysmessage @<def.fail>,,1 remove them from this list before adding them to another.
+		end
+		begin
+			src.sysmessage @<def.fail>,,1 <ref2.name> входит в Список Изгнания дома.
+			src.sysmessage @<def.fail>,,1 сперва удалите его из этого списка, прежде чем добавить в другой.
+		end
+	enddo
+	ref1.sdialog d_house_menu 2
+	return 1
+elseif (<argn> == 1)
+	if (<ref1.Coowners> <= <ddef.hs_max_Coowner>)
+		ref2.events +e_house_count_block
+		ref1.AddCoowner = <ref2>
 		doswitch <src.f_LangShowNum>
-			src.sysmessage @<def.fail>,,1 You cannot add yourself to the <def.HouseCtrl_<src.f_LangShow>_List<local.list>>.
-			src.sysmessage @<def.fail>,,1 Вы не можете добавить самого себя в <def.HouseCtrl_<src.f_LangShow>_List<local.list>>.
+			begin
+				src.sysmessage @52,,1 <ref2.name> has been added as a Co-Owner for this property.
+				ref2.sysmessage @52,,1 You have been made a Co-Owner for this property.
+			end
+			begin
+				src.sysmessage @52,,1 <ref2.name> получил статус Совладельца дома.
+				ref2.sysmessage @52,,1 Вас сделали Совладельцем этого дома.
+			end
 		enddo
-		ref1.sdialog d_house_menu
+		ref2.events -e_house_count_block
+		ref1.sdialog d_house_menu 2
+		return 1
+	else
+		doswitch <src.f_LangShowNum>
+			begin
+				src.sysmessage @<def.fail>,,1 You already have the maximum number of Co-Owners permitted for this property. (<ddef.hs_max_Coowner>)
+				src.sysmessage @<def.fail>,,1 Remove someone from the list and try again..
+			end
+			begin
+				src.sysmessage @<def.fail>,,1 Достигнуто максимальное количество Совладельцев, разрешенное для этого типа здания. (<ddef.hs_max_Coowner>)
+				src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
+			end
+		enddo
+		ref1.sdialog d_house_menu 2
 		return 1
 	endif
-	if (<ref1.isowner <ref2>>)
-		doswitch <src.f_LangShowNum>
-			src.sysmessage @<def.fail>,,1 <ref2.name> is the owner of this property.
-			src.sysmessage @<def.fail>,,1 <ref2.name> имеет статус "Собственника" дома.
-		enddo
-		ref1.sdialog d_house_menu
-		return 1
-	elseif (<ref1.GetCoownerPos <ref2>> >= 0)
+elseif (<argn> == 2)
+	if (<ref1.Friends> <= <ddef.hs_max_Friends>)
+		ref2.events +e_house_count_block
+		ref1.AddFriend = <ref2>
 		doswitch <src.f_LangShowNum>
 			begin
-				src.sysmessage @<def.fail>,,1 <ref2.name> is a co-owner of this property.
-				src.sysmessage @<def.fail>,,1 remove them from this list before adding them to another.
+				src.sysmessage @52,,1 <ref2.name> has been added as a Friend for this property.
+				ref2.sysmessage @52,,1 You have been made a Friend for this property.
 			end
 			begin
-				src.sysmessage @<def.fail>,,1 <ref2.name> имеет статус "Совладельца" дома.
-				src.sysmessage @<def.fail>,,1 сперва удалите его из списка совладельцев, прежде чем добавить в другой.
+				src.sysmessage @52,,1 <ref2.name> получил статус Друга дома.
+				ref2.sysmessage @52,,1 Вас сделали Другом этого дома.
 			end
 		enddo
-		ref1.sdialog d_house_menu
+		ref2.events -e_house_count_block
+		ref1.sdialog d_house_menu 2
 		return 1
-	elseif (<ref1.GetFriendPos <ref2>> >= 0)
+	else
 		doswitch <src.f_LangShowNum>
 			begin
-				src.sysmessage @<def.fail>,,1 <ref2.name> is a friend of this property.
-				src.sysmessage @<def.fail>,,1 remove them from this list before adding them to another.
+				src.sysmessage @<def.fail>,,1 You already have the maximum number of Friends permitted for this property. (<ddef.hs_max_Friend>)
+				src.sysmessage @<def.fail>,,1 Remove someone from the list and try again.
 			end
 			begin
-				src.sysmessage @<def.fail>,,1 <ref2.name> имеет статус "Друга" дома.
-				src.sysmessage @<def.fail>,,1 сперва удалите его из списка друзей, прежде чем добавить в другой.
+				src.sysmessage @<def.fail>,,1 Достигнуто максимальное количество Друзей, разрешенное для этого типа здания. (<ddef.hs_max_Friend>)
+				src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
 			end
 		enddo
-		ref1.sdialog d_house_menu
+		ref1.sdialog d_house_menu 2
 		return 1
-	elseif (<ref1.GetAccessPos <ref2>> >= 0)
+	endif
+elseif (<argn> == 3)
+	if (<ref1.Bans> <= <ddef.hs_max_Ban>)
+		ref1.AddBan = <ref2>
 		doswitch <src.f_LangShowNum>
 			begin
-				src.sysmessage @<def.fail>,,1 <ref2.name> is on the access list.
-				src.sysmessage @<def.fail>,,1 remove them from this list before adding them to another.
+				src.sysmessage @<def.fail>,,1 <ref2.name> has been banned from the property.
+				ref2.sysmessage @<def.fail>,,1 You have been banned from this property.
 			end
 			begin
-				src.sysmessage @<def.fail>,,1 <ref2.name> входит в Список Доступа дома.
-				src.sysmessage @<def.fail>,,1 сперва удалите его из этого списка, прежде чем добавить в другой.
+				src.sysmessage @52,,1 <ref2.name> получил запрет нахождения на территории этого дома.
+				ref2.sysmessage @52,,1 Вам запретили находится на территории этого дома.
 			end
 		enddo
-		ref1.sdialog d_house_menu
+		ref2.go <link.p>
+		ref1.sdialog d_house_menu 2
 		return 1
-	elseif (<ref1.GetBanPos <ref2>> >= 0)
+	else
 		doswitch <src.f_LangShowNum>
 			begin
-				src.sysmessage @<def.fail>,,1 src.sysmessage @<def.fail>,,1 <ref2.name> is on the bans list.
-				src.sysmessage @<def.fail>,,1 remove them from this list before adding them to another.
+				src.sysmessage @<def.fail>,,1 Your Ban list is full.
+				src.sysmessage @<def.fail>,,1 Remove someone from the list and try again.
 			end
 			begin
-				src.sysmessage @<def.fail>,,1 <ref2.name> входит в Список Изгнания дома.
-				src.sysmessage @<def.fail>,,1 сперва удалите его из этого списка, прежде чем добавить в другой.
+				src.sysmessage @<def.fail>,,1 Список лиц, которым запрещено находится на территории дома, переполнен.
+				src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
 			end
 		enddo
-		ref1.sdialog d_house_menu
+		ref1.sdialog d_house_menu 2
 		return 1
-	elseif (<argn> == 1)
-		if (<ref1.Coowners> <= <ddef.hs_max_Coowners>)
-			ref2.events +e_house_count_block
-			ref1.AddCoowner = <ref2>
-			doswitch <src.f_LangShowNum>
-				begin
-					src.sysmessage @52,,1 <ref2.name> has been added as a Co-Owner for this property.
-					ref2.sysmessage @52,,1 You have been made a Co-Owner for this property.
-				end
-				begin
-					src.sysmessage @52,,1 <ref2.name> получил статус Совладельца дома.
-					ref2.sysmessage @52,,1 Вас сделали Совладельцем этого дома.
-				end
-			enddo
-			ref2.events -e_house_count_block
-			ref1.sdialog d_house_menu
-			return 1
-		else
-			doswitch <src.f_LangShowNum>
-				begin
-					src.sysmessage @<def.fail>,,1 You already have the maximum number of Co-Owners permitted for this property. (<ddef.hs_max_Coowner>)
-					src.sysmessage @<def.fail>,,1 Remove someone from the list and try again..
-				end
-				begin
-					src.sysmessage @<def.fail>,,1 Достигнуто максимальное количество Совладельцев, разрешенное для этого типа здания. (<ddef.hs_max_Coowner>)
-					src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
-				end
-			enddo
-			ref1.sdialog d_house_menu
-			return 1
-		endif
-	elseif (<argn> == 2)
-		if (<ref1.Friends> <= <ddef.hs_max_Friends>)
-			ref2.events +e_house_count_block
-			ref1.AddFriend = <ref2>
-			doswitch <src.f_LangShowNum>
-				begin
-					src.sysmessage @52,,1 <ref2.name> has been added as a Friend for this property.
-					ref2.sysmessage @52,,1 You have been made a Friend for this property.
-				end
-				begin
-					src.sysmessage @52,,1 <ref2.name> получил статус Друга дома.
-					ref2.sysmessage @52,,1 Вас сделали Другом этого дома.
-				end
-			enddo
-			ref2.events -e_house_count_block
-			ref1.sdialog d_house_menu
-			return 1
-		else
-			doswitch <src.f_LangShowNum>
-				begin
-					src.sysmessage @<def.fail>,,1 You already have the maximum number of Friends permitted for this property. (<ddef.hs_max_Friend>)
-					src.sysmessage @<def.fail>,,1 Remove someone from the list and try again..
-				end
-				begin
-					src.sysmessage @<def.fail>,,1 Достигнуто максимальное количество Друзей, разрешенное для этого типа здания. (<ddef.hs_max_Friend>)
-					src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
-				end
-			enddo
-			ref1.sdialog d_house_menu
-			return 1
-		endif
-	elseif (<argn> == 3)
-		if (<ref1.Bans> <= <ddef.hs_max_Ban>)
-			ref1.AddBan = <ref2>
-			doswitch <src.f_LangShowNum>
-				begin
-					src.sysmessage @<def.fail>,,1 <ref2.name> has been banned from the property.
-					ref2.sysmessage @<def.fail>,,1 You have been banned from this property.
-				end
-				begin
-					src.sysmessage @52,,1 <ref2.name> получил запрет нахождения на территории этого дома.
-					ref2.sysmessage @52,,1 Вам запретили находится на территории этого дома.
-				end
-			enddo
-			ref2.go <link.p>
-			ref1.sdialog d_house_menu
-			return 1
-		else
-			doswitch <src.f_LangShowNum>
-				begin
-					src.sysmessage @<def.fail>,,1 Your Ban list is full.
-					src.sysmessage @<def.fail>,,1 Remove someone from the list and try again.
-				end
-				begin
-					src.sysmessage @<def.fail>,,1 Список лиц, которым запрещено находится на территории дома, переполнен.
-					src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
-				end
-			enddo
-			ref1.sdialog d_house_menu
-			return 1
-		endif
-	elseif (<argn> == 4)
-		if (<ref1.Accesses> <= <ddef.hs_max_Access>)
-			ref1.AddAccess = <ref2>
-			doswitch <src.f_LangShowNum>
-				begin
-					src.sysmessage @52,,1 <ref2.name> has been granted access to the property.
-			ref2.sysmessage @52,,1 You have been granted access to the property.
-				end
-				begin
-					src.sysmessage @52,,1 <ref2.name> был предоставлен доступ на территорию дома.
-					ref2.sysmessage @52,,1 Вам был предоставлен доступ на территорию дома.
-				end
-			enddo
-			ref1.sdialog d_house_menu
-			return 1
-		else
-			doswitch <src.f_LangShowNum>
-				begin
-					src.sysmessage @<def.fail>,,1 Your Access list is full.
-					src.sysmessage @<def.fail>,,1 Remove someone from the list and try again.
-				end
-				begin
-					src.sysmessage @<def.fail>,,1 Список лиц, которым разрешено находится на территории дома, переполнен.
-					src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
-				end
-			enddo
-			ref1.sdialog d_house_menu
-			return 1
-		endif
+	endif
+elseif (<argn> == 4)
+	if (<ref1.Accesses> <= <ddef.hs_max_Access>)
+		ref1.AddAccess = <ref2>
+		doswitch <src.f_LangShowNum>
+			begin
+				src.sysmessage @52,,1 <ref2.name> has been granted access to the property.
+				ref2.sysmessage @52,,1 You have been granted access to the property.
+			end
+			begin
+				src.sysmessage @52,,1 <ref2.name> был предоставлен доступ на территорию дома.
+				ref2.sysmessage @52,,1 Вам был предоставлен доступ на территорию дома.
+			end
+		enddo
+		ref1.sdialog d_house_menu 2
+		return 1
+	else
+		doswitch <src.f_LangShowNum>
+			begin
+				src.sysmessage @<def.fail>,,1 Your Access list is full.
+				src.sysmessage @<def.fail>,,1 Remove someone from the list and try again.
+			end
+			begin
+				src.sysmessage @<def.fail>,,1 Список лиц, которым разрешено находится на территории дома, переполнен.
+				src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
+			end
+		enddo
+		ref1.sdialog d_house_menu 2
+		return 1
 	endif
 endif
 
@@ -444,6 +582,13 @@ ref1 = <region.uid>
 if !(<ref1.IsOwner <uid>> || (<ref1.GetCoownerPos <uid>> >= 0) || (<ref1.GetFriendPos <uid>> >= 0) || <IsGM>) // Double check to prevent players to get the target on their house and use it on another.
 	return 1
 endif
+if !<argo>
+	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	return 1
+elseif !(<argo.isitem>)
+	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	return 1
+endif
 if <def.hs_hs_secure_locks_limit>
 	if (<ref1.currentstorage> >= <ref1.maxstorage>)
 		doswitch <src.f_LangShowNum>
@@ -496,6 +641,13 @@ ref1 = <region.uid>
 if !(<ref1.IsOwner <uid>> || (<ref1.GetCoownerPos <uid>> >= 0) || (<ref1.GetFriendPos <uid>> >= 0) || <IsGM>) // Double check to prevent players to get the target on their house and use it on another.
 	return 1
 endif
+if !<argo>
+	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	return 1
+elseif !(<argo.isitem>)
+	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	return 1
+endif
 if (<ref1.GetSecuredContainerPos <argo>> = 0) && ((<ref1.IsOwner <uid>>) || (<IsGM>))
 	ref1.release <argo>
 	argo.tag.access =
@@ -534,6 +686,13 @@ if !(<ref1.IsOwner <uid>> || (<ref1.GetCoownerPos <uid>> >= 0) || <IsGM>) // Dou
 	enddo
 	return 1
 endif
+if !<argo>
+	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	return 1
+elseif !(<argo.isitem>)
+	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	return 1
+endif
 if <def.hs_hs_secure_locks_limit>
 	if (<ref1.currentstorage> >= <ref1.maxstorage>) || (<eval(<argo.count> + 1)> >= <ref1.maxstorage>)
 		doswitch <src.f_LangShowNum>
@@ -542,13 +701,6 @@ if <def.hs_hs_secure_locks_limit>
 		enddo
 		return 1
 	endif
-endif
-if !<argo>
-	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
-	return 1
-elseif !(<argo.isitem>)
-	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
-	return 1
 endif
 if (<argo.region.uid> != <ref1>)
 	doswitch <src.f_LangShowNum>
@@ -580,11 +732,11 @@ argo.resendtooltip 1
 ref2 = <argn1>
 if !<argo>
 	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
-	ref2.sdialog d_house_menu
+	ref2.sdialog d_house_menu 2
 	return 1
 elseif !(<argo.isitem>)
 	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
-	ref2.sdialog d_house_menu
+	ref2.sdialog d_house_menu 2
 	return 1
 endif
 ref1 = <argo.region.uid>
@@ -593,7 +745,7 @@ if (<src> != <ref1.owner>)
 		src.sysmessage @<def.fail>,,1 You can only modify items which are in your house.
 		src.sysmessage @<def.fail>,,1 Только собственник может модифицировать предметы в этом доме.
 	enddo
-	ref2.sdialog d_house_menu
+	ref2.sdialog d_house_menu 2
 	return 1
 endif
 if (<argo.type> == t_door) || (<argo.type> == t_door_locked) || (<argo.type> == t_telepad)
@@ -614,7 +766,7 @@ elseif (<argo.f_isContainer>)
 		enddo
 	endif
 endif
-ref2.sdialog d_house_menu
+// ref2.sdialog d_house_menu 2
 
 [FUNCTION f_house_eject]
 if !<argo>
@@ -651,11 +803,14 @@ endif
 argo.go <ref1.link.p>
 
 [FUNCTION f_house_declare_guild]
+ref1 = <argn>
 if !<argo>
 	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	ref1.sdialog d_house_menu 2
 	return 1
 elseif !(<argo.isitem>)
 	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	ref1.sdialog d_house_menu 2
 	return 1
 endif
 if (<argo.type> != t_stone_guild)
@@ -663,39 +818,39 @@ if (<argo.type> != t_stone_guild)
 		sysmessage @<def.fail>,,1 A guildstone must be specified as the target.
 		sysmessage @<def.fail>,,1 В качестве цели нужно указать гильдийный камень.
 	enddo
+	ref1.sdialog d_house_menu 2
 	return 1
 endif
-ref1 = <argn>
 if (<argo.topobj.uid> != <argo.uid>) || (<argo.region.uid> != <ref1.region.uid>)
 	doswitch <src.f_LangShowNum>
 		sysmessage @<def.fail>,,1 Guildstone should be located in the region of the house.
 		sysmessage @<def.fail>,,1 Гильдийный камень должен находится на территории дома.
 	enddo
+	ref1.sdialog d_house_menu 2
 	return 1
 endif
-if (<argo.type> == t_stone_guild)
-	ref1.housetype = <def.house_guild>
-	ref1.tag.is_guild = <argo.uid>
-	ref1.resendtooltip
-	doswitch <src.f_LangShowNum>
-		begin
-			src.sysmessage @,,1 All <argo.name> guild members now have access to this building.
-			if ((<def0.hs_door_acces_key>) && (<serv.AutoHouseKeys>)) // If keys are used, let the server check them.
-				src.sysmessage @,,1 Don't forget to set security level and lock the doors if areas are/need to be restricted.
-			else
-				src.sysmessage @,,1 Don't forget to set security level if areas are/need to be restricted.
-			endif
-		end
-		begin
-			src.sysmessage @,,1 Все члены гильдии <argo.name> получают доступ на территорию дома.
-			if ((<def0.hs_door_acces_key>) && (<serv.AutoHouseKeys>)) // If keys are used, let the server check them.
-				src.sysmessage @,,1 Не забудьте установить уровни доступа и запереть двери, если хотите ограничить доступ.
-			else
-				src.sysmessage @,,1 Не забудьте установить уровни доступа, если хотите ограничить доступ.
-			endif
-		end
-	enddo
-endif
+ref1.housetype = <def.house_guild>
+ref1.tag.is_guild = <argo.uid>
+ref1.resendtooltip
+doswitch <src.f_LangShowNum>
+	begin
+		src.sysmessage @,,1 All <argo.name> guild members now have access to this building.
+		if ((<def0.hs_door_acces_key>) && (<serv.AutoHouseKeys>)) // If keys are used, let the server check them.
+			src.sysmessage @,,1 Don't forget to set security level and lock the doors if areas are/need to be restricted.
+		else
+			src.sysmessage @,,1 Don't forget to set security level if areas are/need to be restricted.
+		endif
+	end
+	begin
+		src.sysmessage @,,1 Все члены гильдии <argo.name> получают доступ на территорию дома.
+		if ((<def0.hs_door_acces_key>) && (<serv.AutoHouseKeys>)) // If keys are used, let the server check them.
+			src.sysmessage @,,1 Не забудьте установить уровни доступа и запереть двери, если хотите ограничить доступ.
+		else
+			src.sysmessage @,,1 Не забудьте установить уровни доступа, если хотите ограничить доступ.
+		endif
+	end
+enddo
+ref1.sdialog d_house_menu 2
 
 
 [FUNCTION f_house_movecheck]
@@ -799,17 +954,21 @@ endif
 argo.update
 
 [FUNCTION f_house_transfer]
+ref1 = <args>
 if !<argo>
 	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	ref1.sdialog d_house_menu 5
 	return 1
-elseif !<argo.isplayer> 
+elseif !<argo.isplayer>
 	src.sysmessage @<def.fail>,,1 <def.HouseCtrl_<src.f_LangShow>_InvalTrg>
+	ref1.sdialog d_house_menu 5
 	return 1
 elseif (<argo> == <src>)
 	doswitch <src.f_LangShowNum>
 		src.sysmessage @<def.fail>,,1 You cannot transfer house to yourself.
 		src.sysmessage @<def.fail>,,1 Вы не можете передать дом самому себе.
 	enddo
+	ref1.sdialog d_house_menu 5
 	return 1
 endif
 
@@ -818,6 +977,7 @@ if !(<argo.houses> < <serv.MaxHousesAccount>)
 		src.sysmessage @<def.fail>,,1 <argo.name> already own the maximum number of houses permitable.
 		src.sysmessage @<def.fail>,,1 <argo.name> владеет предельным количеством домов.
 	enddo
+	ref1.sdialog d_house_menu 5
 	return 1
 endif
 if (<argo.findtype.t_eq_trade_window.isvalid>)
@@ -831,19 +991,20 @@ if (<argo.findtype.t_eq_trade_window.isvalid>)
 			argo.sysmessage @<def.fail>,,1 Для продолжения сделки вы должны закрыть окно торговли.
 		end
 	enddo
+	ref1.sdialog d_house_menu 5
 	return 1
 elseif (<src.findtype.t_eq_trade_window>)
 	doswitch <src.f_LangShowNum>
 		src.sysmessage @<def.fail>,,1 You already have a trade window open.
 		src.sysmessage @<def.fail>,,1 Сперва закройте окно торговли.
 	enddo
+	ref1.sdialog d_house_menu 5
 	return 1
 endif
 doswitch <src.f_LangShowNum>
 	src.sysmessage @,,1 Please wait until <argo.name> accept the trade.
 	src.sysmessage @,,1 Подождите пока <argo.name> подтвердит сделку.
 enddo
-ref1 = <args>
 src.events +e_house_transfer
 argo.events +e_house_transfer
 serv.newitem i_house_transfer
@@ -854,7 +1015,8 @@ new.link = <ref1>
 new.type = t_trade_house_deed
 new.more = <argo>
 new.timerf 2,trigger @Timer
-src.trysrc <argo> f_TradeWindow <NEW>
+src.trysrc <argo> f_TradeWindow <new>
+// ref1.sdialog d_house_menu 5
 
 [FUNCTION f_TradeWindow]
 ref1 = <uid>
@@ -1065,7 +1227,7 @@ endif
 
 [FUNCTION f_house_dialog]	// f_house_dialog x,y,w,h
 resizepic <argv[0]> <argv[1]> <def.dialog_hs_bg> <argv[2]> <argv[3]>
-gumppictiled <eval(<argv[0]>+4)> <eval(<argv[1]>+6)> <eval(<argv[2]>-9)> <eval(<argv[3]>-10)> 2624
+gumppictiled <eval(<argv[0]>+4)> <eval(<argv[1]>+6)> <eval(<argv[2]>-9)> <eval(<argv[3]>-10)> <def0.dialog_hs_tile>
 checkertrans <eval(<argv[0]>+4)> <eval(<argv[1]>+6)> <eval(<argv[2]>-9)> <eval(<argv[3]>-10)>
 
 [EOF]
