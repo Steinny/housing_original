@@ -1566,14 +1566,11 @@ ONBUTTON=1
 	ref1 = <tag0.sign> //sign
 	if <ref1.isvalid>
 		ref1.name = <argtxt[1]>
-		ref2 = <ref1.link>
-		if <ref2.isvalid>
-			ref2.name = <argtxt[1]>
-		endif
+		name = <argtxt[1]>
 		if <def.hs_can_decay>
 			ref1.attr = 02|010
 			if (<ref1.timer> < 0)
-				ref1.timer = 60*60*24*<def.hs_can_decay>
+				ref1.timer = 86400*<def.hs_can_decay> //60*60*24*<def.hs_can_decay>
 			endif
 		else
 			ref1.timer = -1

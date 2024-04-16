@@ -128,6 +128,15 @@ On=@DClick
 			endif
 		endif
 	endif
+	
+	if !<link.tag0.sign> && <link.COMPONENT>
+		for 0 <link.COMPONENT>
+			if (<link.COMPONENT.<local._for>.baseid> == i_sign_brass)
+				link.tag0.sign = <link.COMPONENT.<local._for>.uid>
+			endif
+		endfor
+	endif
+	
 	if (<link.isowner <src>>) || (<link.GetCoownerPos <src>> >= 0) || (<link.GetFriendPos <src>> >= 0) || (<src.isgm>)
 		if (<src.region.uid> == <link>)
 			link.sdialog d_house_menu
