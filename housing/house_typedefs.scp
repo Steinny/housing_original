@@ -552,7 +552,7 @@ On=@TargOn_Ground
 					src.sysmessage @<def.fail>,,1 Количество дней до того, как вы сможете установить новый дом: <eval((<src.TAG0.House_PlacementDelay>-<serv.time>)/864000)>
 				enddo
 				return 1
-			elseif !(<def0.hs_placement_ilshenar_facet>) && (<src.TARGP.M> == 2)
+			elseif !(<def0.hs_placement_ilshenar>) && (<src.TARGP.M> == 2)
 				doswitch <src.f_LangShowNum>
 					src.sysmessage @<def.fail>,,1 Housing cannot be created in this area.
 					src.sysmessage @<def.fail>,,1 Невозможно установить дом в этом регионе.

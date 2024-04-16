@@ -1,3 +1,17 @@
+[DEFNAME msg_types]
+WARNING			1977 //39
+ERROR			1977
+SUCCESS			173
+FAIL			32 //39
+INFO			1092
+QUEST			1558 //172
+ENCHANT			2029
+BUFF			62
+DEBUFF			39
+SYSMSG			55
+PVPMSG			2170
+TMMSG			194
+
 [DEFNAME LANGUAGE]
 LANG_COUNT = 2
 LANG_0		= ENG
@@ -5,10 +19,6 @@ LANG_1		= RUS
 
 ENG			= 0
 RUS			= 1
-
-[DEFNAME msg_types]
-// TextColor Settings
-fail			32
 
 [FUNCTION f_math_cat] //делит число на разряды
 if strlen(<argn>) <= 3
@@ -248,5 +258,22 @@ ONBUTTON=1,10
 	argn -= 1
 	src.account.tag.LANG = <def.LANG_<argn>>
 	src.sysmessage @,,1 LANG = <src.account.tag.LANG>
+
+[FUNCTION f_house_init] //ref1 - sign //ref2 - house //ref3 - owner
+call f_return_todate <serv.rtime>
+if !(<ref2.tag0.sign>)
+	ref2.tag.buildon = <local.todate>
+	ref2.tag.sign = <uid>
+	tag.sign_dispid = <hval(<dispid> & ~0a8f00000)>
+	
+	local.file_name = secure/secure
+	LOGOPEN <local.file_name>
+	LOGWRITE <local.file_name>,[BUILD] House <link.name>[<link.uid>] build by <ref3.name>(<ref3.account>)[<ref3.uid>]
+	LOGFLUSH <local.file_name>
+	
+endif
+if (<argn1> & 02)
+	ref2.tag.lasttransfer = <local.todate>
+endif
 
 [EOF]

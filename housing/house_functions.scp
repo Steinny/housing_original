@@ -112,8 +112,7 @@ return <def.house_access_none>
 [FUNCTION f_house_render_list]
 ref1 = <owner>
 local.list = <argv[0]>
-// dhtmlgump 88 125 220 20 0 0 <def.bfont_lslateblue><def.bfont_size7><def.center><local.list> List <<local.list><qval (strmatch(*access*,<local.list>))?es:s>> / <def0.hs_max_co_owners>
-dhtmlgump 88 125 220 20 0 0 <def.bfont_lslateblue><def.bfont_size7><def.center><def.HouseCtrl_<src.f_LangShow>_List<local.list>> <<local.list><qval (strmatch(*access*,<local.list>))?es:s>> / <def0.hs_max_co_owners>
+dhtmlgump 88 125 220 20 0 0 <def.bfont_hs_title><def.center><def.HouseCtrl_<src.f_LangShow>_List<local.list>> <def.bfont_hs_text3>(<<local.list><qval (strmatch(*access*,<local.list>))?es:s>> / <def0.hs_max_<local.list>>)
 if (strmatch(*ban*,<local.list>))
 	local.fontcolor = <def.bfont_lred>
 elseif (strmatch(*access*,<local.list>))
@@ -268,7 +267,7 @@ if <ref2.isplayer>
 		ref1.sdialog d_house_menu
 		return 1
 	elseif (<argn> == 1)
-		if (<ref1.Coowners> <= <ddef.hs_max_co_owners>)
+		if (<ref1.Coowners> <= <ddef.hs_max_Coowners>)
 			ref2.events +e_house_count_block
 			ref1.AddCoowner = <ref2>
 			doswitch <src.f_LangShowNum>
@@ -287,11 +286,11 @@ if <ref2.isplayer>
 		else
 			doswitch <src.f_LangShowNum>
 				begin
-					src.sysmessage @<def.fail>,,1 You already have the maximum number of Co-Owners permitted for this property. (<ddef.hs_max_co_owners>)
+					src.sysmessage @<def.fail>,,1 You already have the maximum number of Co-Owners permitted for this property. (<ddef.hs_max_Coowner>)
 					src.sysmessage @<def.fail>,,1 Remove someone from the list and try again..
 				end
 				begin
-					src.sysmessage @<def.fail>,,1 Достигнуто максимальное количество Совладельцев, разрешенное для этого типа здания. (<ddef.hs_max_co_owners>)
+					src.sysmessage @<def.fail>,,1 Достигнуто максимальное количество Совладельцев, разрешенное для этого типа здания. (<ddef.hs_max_Coowner>)
 					src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
 				end
 			enddo
@@ -299,7 +298,7 @@ if <ref2.isplayer>
 			return 1
 		endif
 	elseif (<argn> == 2)
-		if (<ref1.Friends> <= <ddef.hs_max_friends>)
+		if (<ref1.Friends> <= <ddef.hs_max_Friends>)
 			ref2.events +e_house_count_block
 			ref1.AddFriend = <ref2>
 			doswitch <src.f_LangShowNum>
@@ -318,11 +317,11 @@ if <ref2.isplayer>
 		else
 			doswitch <src.f_LangShowNum>
 				begin
-					src.sysmessage @<def.fail>,,1 You already have the maximum number of Friends permitted for this property. (<ddef.hs_max_friends>)
+					src.sysmessage @<def.fail>,,1 You already have the maximum number of Friends permitted for this property. (<ddef.hs_max_Friend>)
 					src.sysmessage @<def.fail>,,1 Remove someone from the list and try again..
 				end
 				begin
-					src.sysmessage @<def.fail>,,1 Достигнуто максимальное количество Друзей, разрешенное для этого типа здания. (<ddef.hs_max_friends>)
+					src.sysmessage @<def.fail>,,1 Достигнуто максимальное количество Друзей, разрешенное для этого типа здания. (<ddef.hs_max_Friend>)
 					src.sysmessage @<def.fail>,,1 Удалите кого-нибудь из списка и попробуйте заново.
 				end
 			enddo
@@ -330,7 +329,7 @@ if <ref2.isplayer>
 			return 1
 		endif
 	elseif (<argn> == 3)
-		if (<ref1.Bans> <= <ddef.hs_max_ban>)
+		if (<ref1.Bans> <= <ddef.hs_max_Ban>)
 			ref1.AddBan = <ref2>
 			doswitch <src.f_LangShowNum>
 				begin
@@ -360,7 +359,7 @@ if <ref2.isplayer>
 			return 1
 		endif
 	elseif (<argn> == 4)
-		if (<ref1.Accesses> <= <ddef.hs_max_access>)
+		if (<ref1.Accesses> <= <ddef.hs_max_Access>)
 			ref1.AddAccess = <ref2>
 			doswitch <src.f_LangShowNum>
 				begin

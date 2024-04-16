@@ -69,8 +69,8 @@ hs_estate_calc				2	// 1 = flat <def.hs_estate_rate>% rate    2 = linear charge 
 hs_buy_storage 				1	// if set to 1 allows players to increase secure storage by up to 100% via house sign, 0 to disable
 
 //DO NOT ALTER THE FOLLOWING AFTER INITIAL SETUP!!! - - Doing so could cause problems when players go over these limits.
-hs_max_friends				20	// DO NOT SET THIS ONE ABOVE 20 Dialog doesn't have extra pages for above that amount (actual number is set from building size)
-hs_max_co_owners			10	// DO NOT SET THIS ONE ABOVE 10 Dialog is not set up for more than that amount (actual number is set from building size)
+hs_max_friend				20	// DO NOT SET THIS ONE ABOVE 20 Dialog doesn't have extra pages for above that amount (actual number is set from building size)
+hs_max_coowner				10	// DO NOT SET THIS ONE ABOVE 10 Dialog is not set up for more than that amount (actual number is set from building size)
 hs_max_ban					10	// DO NOT SET THIS ONE ABOVE 10 Dialog is not set up for more than that amount (actual number is set from building size)
 hs_max_access				10	// DO NOT SET THIS ONE ABOVE 10 Dialog is not set up for more than that amount (actual number is set from building size)
 
